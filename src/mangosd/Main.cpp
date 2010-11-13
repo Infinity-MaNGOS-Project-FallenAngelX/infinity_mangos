@@ -151,17 +151,18 @@ extern int main(int argc, char **argv)
     sLog.outString( "%s [world-daemon]", _FULLVERSION(REVISION_DATE,REVISION_TIME,REVISION_NR,REVISION_ID) );
     sLog.outString( "<Ctrl-C> to stop.\n\n" );
 
-    sLog.outTitle( "MM   MM         MM   MM  MMMMM   MMMM   MMMMM");
-    sLog.outTitle( "MM   MM         MM   MM MMM MMM MM  MM MMM MMM");
-    sLog.outTitle( "MMM MMM         MMM  MM MMM MMM MM  MM MMM");
-    sLog.outTitle( "MM M MM         MMMM MM MMM     MM  MM  MMM");
-    sLog.outTitle( "MM M MM  MMMMM  MM MMMM MMM     MM  MM   MMM");
-    sLog.outTitle( "MM M MM M   MMM MM  MMM MMMMMMM MM  MM    MMM");
-    sLog.outTitle( "MM   MM     MMM MM   MM MM  MMM MM  MM     MMM");
-    sLog.outTitle( "MM   MM MMMMMMM MM   MM MMM MMM MM  MM MMM MMM");
-    sLog.outTitle( "MM   MM MM  MMM MM   MM  MMMMMM  MMMM   MMMMM");
-    sLog.outTitle( "        MM  MMM http://getmangos.com");
-    sLog.outTitle( "        MMMMMM\n\n");
+     sLog.outTitle( "               P   R   O   J   E   C   T __ TheFallen_WoW __                  ");	
+    sLog.outTitle( "              A Special Made Core For & By FallenAngelX                        ");	
+    sLog.outTitle( ":::::::::      :::     :::        :::     ::::::::   :::::::::                 ");
+	sLog.outTitle( ":+:          :+: :+:   :+:        :+:     :+:        :+:    :+:                ");
+	sLog.outTitle( "+:+         +:+   +:+  +:+        +:+     +:+        +:+     +:+               ");
+    sLog.outTitle( "+:+::::::   #++:++#++: +#+        +#+     +#++:++#   +#+     +#+               ");
+    sLog.outTitle( "+:+        +#+     +#+ +#+        +#+     +#+        +#+     +#+               ");
+    sLog.outTitle( "#+#        #+#     #+# #+#        #+#     #+#        #+#     #+#               ");
+    sLog.outTitle( "###        ###     ### #######    ####### ########   ###     ###               ");
+    sLog.outTitle( "Special Made Core By and for FallenAngelX 3.3.5 Personal Core                  ");	
+	sLog.outTitle( "Github.com/fallenangelX/(Retired Developer From Hellscream & Dark_Ice)"         );
+	sLog.outTitle( "Project The Fallen World of Warcraft Server 3.3.5                              ");
 
     sLog.outString("Using configuration file %s.", cfg_file);
 
