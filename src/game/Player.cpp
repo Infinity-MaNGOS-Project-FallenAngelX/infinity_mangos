@@ -5271,20 +5271,37 @@ float Player::OCTRegenMPPerSpirit()
 void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
 {
     m_baseRatingValue[cr]+=(apply ? value : -value);
+	
+    float hastePctMod = 1.0f;
+	
+	// After 3.1.3 there was bonus from haste rating increased for specific classes (only for ranged and melee)
+	switch(getClass())
+	{
+	    case CLASS_PALADIN:
+		case CLASS_DEATH_KNIGHT:
+		case CLASS_SHAMAN:
+		case CLASS_DRUID:
+		{
+		    hastePctMod = 1.3f;
+			break;
+		}
+		default:
+		    break;
+	}	
 
     // explicit affected values
     switch (cr)
     {
         case CR_HASTE_MELEE:
         {
-            float RatingChange = value / GetRatingCoefficient(cr);
+            float RatingChange = hastePctMod * value / GetRatingCoefficient(cr);
             ApplyAttackTimePercentMod(BASE_ATTACK,RatingChange,apply);
             ApplyAttackTimePercentMod(OFF_ATTACK,RatingChange,apply);
             break;
         }
         case CR_HASTE_RANGED:
         {
-            float RatingChange = value / GetRatingCoefficient(cr);
+            float RatingChange = hastePctMod * value / GetRatingCoefficient(cr);
             ApplyAttackTimePercentMod(RANGED_ATTACK, RatingChange, apply);
             break;
         }
