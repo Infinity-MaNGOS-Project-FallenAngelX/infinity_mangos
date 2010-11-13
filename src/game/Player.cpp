@@ -17803,12 +17803,23 @@ void Player::_SaveStats()
     // check if stat saving is enabled and if char level is high enough
     if(!sWorld.getConfig(CONFIG_UINT32_MIN_LEVEL_STAT_SAVE) || getLevel() < sWorld.getConfig(CONFIG_UINT32_MIN_LEVEL_STAT_SAVE))
         return;
+		
+    std::ostringstream data_armory;
+    for(uint16 i = 0; i < m_valuesCount; i++)
+    {
+	    data_armory << GetUInt32Value(i) << " ";
+    }	
 
     CharacterDatabase.PExecute("DELETE FROM character_stats WHERE guid = '%u'", GetGUIDLow());
     std::ostringstream ss;
     ss << "INSERT INTO character_stats (guid, maxhealth, maxpower1, maxpower2, maxpower3, maxpower4, maxpower5, maxpower6, maxpower7, "
         "strength, agility, stamina, intellect, spirit, armor, resHoly, resFire, resNature, resFrost, resShadow, resArcane, "
-        "blockPct, dodgePct, parryPct, critPct, rangedCritPct, spellCritPct, attackPower, rangedAttackPower, spellPower) VALUES ("
+        "blockPct, dodgePct, parryPct, critPct, rangedCritPct, spellCritPct, attackPower, rangedAttackPower, spellPower, "
+       "a_apmelee, a_ranged, a_blockrating, a_defrating, a_dodgerating, a_parryrating, a_resilience, a_manaregen, "
+       "a_melee_hitrating, a_melee_critrating, a_melee_hasterating, a_melee_mainmindmg, a_melee_mainmaxdmg, "
+       "a_melee_offmindmg, a_melee_offmaxdmg, a_melee_maintime, a_melee_offtime, a_ranged_critrating, a_ranged_hasterating, "
+       "a_ranged_hitrating, a_ranged_mindmg, a_ranged_maxdmg, a_ranged_attacktime, "
+       "a_spell_hitrating, a_spell_critrating, a_spell_hasterating, a_spell_bonusdmg, a_spell_bonusheal, a_spell_critproc, data) VALUES ("
         << GetGUIDLow() << ", "
         << GetMaxHealth() << ", ";
     for(int i = 0; i < MAX_POWERS; ++i)
@@ -17819,14 +17830,44 @@ void Player::_SaveStats()
     for(int i = 0; i < MAX_SPELL_SCHOOL; ++i)
         ss << GetResistance(SpellSchools(i)) << ",";
     ss << GetFloatValue(PLAYER_BLOCK_PERCENTAGE) << ", "
-       << GetFloatValue(PLAYER_DODGE_PERCENTAGE) << ", "
-       << GetFloatValue(PLAYER_PARRY_PERCENTAGE) << ", "
-       << GetFloatValue(PLAYER_CRIT_PERCENTAGE) << ", "
-       << GetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE) << ", "
-       << GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1) << ", "
-       << GetUInt32Value(UNIT_FIELD_ATTACK_POWER) << ", "
-       << GetUInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER) << ", "
-       << GetBaseSpellPowerBonus() << ")";
+      << GetFloatValue(PLAYER_DODGE_PERCENTAGE) << ", "
+      << GetFloatValue(PLAYER_PARRY_PERCENTAGE) << ", "
+      << GetFloatValue(PLAYER_CRIT_PERCENTAGE) << ", "
+      << GetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE) << ", "
+      << GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1) << ", "
+      << GetUInt32Value(UNIT_FIELD_ATTACK_POWER) << ", "
+      << GetUInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER) << ", "
+      << GetBaseSpellPowerBonus() << ", "
+      << (GetUInt32Value(INFINITY_AP_MELEE_1)+GetUInt32Value(INFINITY_AP_MELEE_2)) << ", "
+      << (GetUInt32Value(INFINITY_AP_RANGED_1)+GetUInt32Value(INFINITY_AP_RANGED_2)) << ", "
+      << GetUInt32Value(INFINITY_BLOCKRATING) << ", "
+      << GetUInt32Value(INFINITY_DEFRATING) << ", "
+      << GetUInt32Value(INFINITY_DODGERATING) << ", "
+      << GetUInt32Value(INFINITY_PARRYRATING) << ", "
+      << GetUInt32Value(INFINITY_RESILIENCE) << ", "
+      << GetFloatValue(INFINITY_MANAREGEN) << ", "
+      << GetUInt32Value(INFINITY_MELEE_HITRATING) << ", "
+      << GetUInt32Value(INFINITY_MELEE_CRITRATING) << ", "
+      << GetUInt32Value(INFINITY_MELEE_HASTERATING) << ", "
+      << GetFloatValue(INFINITY_MELEE_MAINMINDMG) << ", "
+      << GetFloatValue(INFINITY_MELEE_MAINMAXDMG) << ", "
+      << GetFloatValue(INFINITY_MELEE_OFFMINDMG) << ", "
+      << GetFloatValue(INFINITY_MELEE_OFFMAXDMG) << ", "
+      << GetFloatValue(INFINITY_MELLE_MAINTIME) << ", "
+      << GetFloatValue(INFINITY_MELLE_OFFTIME) << ", "
+      << GetUInt32Value(INFINITY_RANGED_CRITRATING) << ", "
+      << GetUInt32Value(INFINITY_RANGED_HASTERATING) << ", "
+      << GetUInt32Value(INFINITY_RANGED_HITRATING) << ", "
+      << GetFloatValue(INFINITY_RANGED_MINDMG) << ", "
+      << GetFloatValue(INFINITY_RANGED_MAXDMG) << ", "
+      << GetFloatValue(INFINITY_RANGED_ATTACKTIME) << ", "
+      << GetUInt32Value(INFINITY_SPELL_HITRATING) << ", "
+      << GetUInt32Value(INFINITY_SPELL_CRITRATING) << ", "
+      << GetUInt32Value(INFINITY_SPELL_HASTERATING) << ", "
+      << GetUInt32Value(INFINITY_SPELL_BONUSDMG) << ", "
+      << GetUInt32Value(INFINITY_SPELL_BONUSHEAL) << ", "
+      << GetFloatValue(INFINITY_SPELL_CRITPROC) << ", '"
+	  << data_armory.str().c_str() << "')";
     CharacterDatabase.Execute( ss.str().c_str() );
 }
 
