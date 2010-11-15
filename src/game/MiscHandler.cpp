@@ -769,7 +769,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
         bool isRegularTargetMap = GetPlayer()->GetDifficulty(mapEntry->IsRaid()) == REGULAR_DIFFICULTY;
 
         uint32 missingKey = 0;
-        if (!isRegularTargetMap)
+        if (!isRegularTargetMap && mapEntry->IsDungeon())
         {
             if(at->heroicKey)
             {
@@ -789,7 +789,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
         }
         else
         {
-            if(at->requiredQuest && !GetPlayer()->GetQuestRewardStatus(at->requiredQuest))
+            if (at->requiredQuest && !GetPlayer()->GetQuestRewardStatus(at->requiredQuest))
                 missingQuest = at->requiredQuest;
         }
 
