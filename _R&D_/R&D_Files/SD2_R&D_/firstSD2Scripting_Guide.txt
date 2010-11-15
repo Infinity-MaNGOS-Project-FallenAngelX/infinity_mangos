@@ -28,7 +28,7 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
 ****//Called anytime someone moves in LOS.
 ****void MoveInLineOfSight(Unit *who);
 
-****//Called every Map Update ////  which is around every 120 ms or so
+****//Called every Map Update ////  which is around every 100 ms to 120 ms
 ****void UpdateAI(const uint32 diff);
 
 };
@@ -488,13 +488,6 @@ _Creature for Creature
 see any resemblance ?
 
 i created this to help me script as fast as possible
-
-also , Look at the Bottom left of your Screen you should be able to see a small window like this :
-
-
-Click on it then Click on your Script Function , 
-You now should be able to see how the function works , and what to insert.
-
 
 acceptTrade
 ActivateTaxiPathTo
