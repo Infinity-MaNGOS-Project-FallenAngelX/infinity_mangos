@@ -642,6 +642,8 @@ bool IsPositiveEffect(uint32 spellId, SpellEffectIndex effIndex)
             {
                 case 28441:                                 // AB Effect 000
                     return false;
+                case 48021:                                 // support for quest 12173
+                    return true;
                 case 54530:                                 // Opening
                     return true;
                 default:

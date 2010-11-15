@@ -376,6 +376,12 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         damage = unitTarget->GetMaxHealth() / 2;
                         break;
                     }
+                    // Gargoyle Strike
+                    case 51963:
+                    {
+                        damage += m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
+                        break;
+                    }
                     // Explode
                     case 47496:
                     {
@@ -1406,6 +1412,22 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(m_caster, 45456, true);
 
                     break;
+                }
+                case 22096:                                 // Ebon Blade Prisoner Credit
+                {
+                    if(m_caster->GetTypeId() == TYPEID_PLAYER)
+                        ((Player*)m_caster)->KilledMonsterCredit(30186);
+
+                    return;
+                }
+                case 45692:                                 // Use Tuskarr Torch (for Quest: Burn in Effigy)
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
+                        return;
+                    // let them burn!(flame spell could be wrong one, anyway visual effect is correct)
+                    unitTarget->CastSpell(unitTarget, 64561, true);
+                    ((Creature*)unitTarget)->ForcedDespawn(15000);
+                    return;
                 }
                 case 45980:                                 // Re-Cursive Transmatter Injection
                 {
@@ -6369,6 +6391,28 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 44870, true);
                     break;
                 }
+                case 23301: // Ebon Blade Banner
+                {
+                    if(m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+                    if(Creature* pTemp = (Creature*)unitTarget)
+                        if(!pTemp->isAlive())
+                        {
+                            ((Player*)m_caster)->KilledMonsterCredit(30220);
+                            pTemp->ForcedDespawn();
+                        }
+                }
+				case 37834: // Unbansih Azaloth
+                   if(m_caster->GetTypeId() != TYPEID_PLAYER)
+                       return;
+
+                   if(Creature* pTemp = (Creature*) unitTarget)
+                   {
+                       pTemp->AI()->AttackStart(m_caster);
+                   }
+                   ((Player*)m_caster)->KilledMonsterCredit(21892);
+
+                   break;
                 case 45204: // Clone Me!
                     unitTarget->CastSpell(m_caster, damage, true);
                     break;
@@ -6664,6 +6708,12 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         return;
 
                     m_caster->CastSpell(m_caster, m_spellInfo->EffectBasePoints[eff_idx]+1, true);
+                    break;
+                }
+                case 52124:                                 // Sky Darkener Assault
+                {
+                    if (unitTarget && unitTarget != m_caster)
+                        m_caster->CastSpell(unitTarget, 52125, false);
                     break;
                 }
                 case 52694:                                 // Recall Eye of Acherus
