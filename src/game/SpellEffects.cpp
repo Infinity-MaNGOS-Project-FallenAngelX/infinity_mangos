@@ -4052,7 +4052,7 @@ void Spell::EffectEnergize(SpellEffectIndex eff_idx)
 	{
 		if(power == POWER_MANA)
 		{
-			SpellAuraHolder* alcStoneEff = caster->GetSpellAuraHolder(17619);
+			SpellAuraHolder* alcStoneEff = m_caster->GetSpellAuraHolder(17619);
 			if(alcStoneEff)
 				damage *= 1.40f;
 		}
