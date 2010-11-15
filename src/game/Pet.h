@@ -287,7 +287,7 @@ class Pet : public Creature
         float GetPetFollowAngle() const { return m_petFollowAngle; }
         void SetPetFollowAngle(float angle) { m_petFollowAngle = angle; }
 
-        MANGOS_DLL_SPEC Unit *GetOwner() const;
+        MANGOS_DLL_SPEC Unit* GetOwner() const;
         bool GetNeedSave() const { return m_needSave; }
         void SetNeedSave(bool needSave) { m_needSave = needSave; }
         uint8 GetPetCounter() { return m_petCounter; }
