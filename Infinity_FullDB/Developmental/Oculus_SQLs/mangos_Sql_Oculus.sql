@@ -24,7 +24,7 @@ UPDATE `creature_template` SET `unit_flags` = 33280 WHERE `entry` = 28183;
 UPDATE `creature_template` SET `ScriptName` = 'mob_laser_dummy_varos' WHERE `entry` = 28239;  -- Laser_Varos
 UPDATE `creature_template` SET `mechanic_immune_mask` = 617299931 WHERE `entry` = 27447; -- added immune to pacify
 UPDATE `creature_template` SET `mechanic_immune_mask` = 617299931 WHERE `entry` = 31559; -- added immune to pacify to hard version 
-UPDATE `creature_template` SET `unit_flags` = 33282 WHERE `entry` = 28183;
+UPDATE `creature_template` SET `unit_flags` = 33280 WHERE `entry` = 28183;
 
 --  Centrifuge Construct
 UPDATE `creature_template` SET `ScriptName` = 'mob_centrifuge_construct' WHERE `entry` = 27641;
