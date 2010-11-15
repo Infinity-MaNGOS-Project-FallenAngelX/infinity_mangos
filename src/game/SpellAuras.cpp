@@ -1937,6 +1937,19 @@ void Aura::TriggerSpell()
             case 48094:                                      // Intense Cold
                 triggerTarget->CastSpell(triggerTarget, trigger_spell_id, true, NULL, this);
                 return;
+            // Static Charge (Lady Vashj in Serpentshrine Cavern)
+            case 38280:
+            // Static Overload normal (Ionar in Halls of Lightning)
+            case 52658:
+            // Static Overload heroic (Ionar in Halls of Lightning)
+            case 59795:
+            case 53563:                                     // Beacon of Light
+            // Searing Light (normal&heroic) (XT-002 in Ulduar)
+            case 63018:
+            case 65121:
+            // Gravity Bomb (normal&heroic) (XT-002 in Ulduar)
+            case 63024:
+            case 64234:
             case 53563:                                     // Beacon of Light
                 // original caster must be target (beacon)
                 target->CastSpell(target, trigger_spell_id, true, NULL, this, target->GetGUID());

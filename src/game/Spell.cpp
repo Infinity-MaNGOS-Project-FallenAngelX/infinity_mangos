@@ -1560,6 +1560,11 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 50988:                                 // Glare of the Tribunal (Halls of Stone)
                 case 59870:                                 // Glare of the Tribunal (h) (Halls of Stone)
                 case 68950:                                 // Fear (ICC: Forge of Souls)
+                case 63018:                                 // XT002's Light Bomb
+                case 65121:                                 // XT002's Light Bomb (h)
+                case 63024:                                 // XT002's Gravitiy Bomb
+                case 64234:                                 // XT002's Gravitiy Bomb (h)
+				case 55479:                                 // Force Obedience (Naxxramas - Razovius encounter)
                 case 66001:                                 // Touch of Darkness
                 case 67281:
                 case 67282:
@@ -2143,6 +2148,11 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             else
                 FillAreaTargets(targetUnitMap, m_targets.m_destX, m_targets.m_destY, radius, PUSH_DEST_CENTER, SPELL_TARGETS_FRIENDLY);
             break;
+            // Mana Detonation (Kel'Thuzad in Naxxramas) - should not damage caster
+			if (m_spellInfo->Id == 27820)
+			{
+			    targetUnitMap.remove(m_caster);
+			}
         // TARGET_SINGLE_PARTY means that the spells can only be casted on a party member and not on the caster (some seals, fire shield from imp, etc..)
         case TARGET_SINGLE_PARTY:
         {
