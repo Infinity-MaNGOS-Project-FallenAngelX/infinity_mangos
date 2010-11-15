@@ -1917,7 +1917,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     for (UnitList::iterator itr = targetUnitMap.begin(); itr != targetUnitMap.end();)
                     {
                         Creature *pTmp = (Creature*)(*itr);
-                        if ( ((*itr) && (*itr)->GetTypeId() == TYPEID_PLAYER) || (pTmp && pTmp->isWorldBoss()) )
+                        if ( ((*itr) && (*itr)->GetTypeId() == TYPEID_PLAYER) || (pTmp && pTmp->IsWorldBoss()) )
                         {
                             targetUnitMap.erase(itr);
                             targetUnitMap.sort();
