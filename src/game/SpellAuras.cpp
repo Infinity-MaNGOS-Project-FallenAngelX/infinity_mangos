@@ -1943,7 +1943,6 @@ void Aura::TriggerSpell()
             case 52658:
             // Static Overload heroic (Ionar in Halls of Lightning)
             case 59795:
-            case 53563:                                     // Beacon of Light
             // Searing Light (normal&heroic) (XT-002 in Ulduar)
             case 63018:
             case 65121:
