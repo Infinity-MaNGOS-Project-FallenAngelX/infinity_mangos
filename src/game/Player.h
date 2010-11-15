@@ -1910,6 +1910,8 @@ class MANGOS_DLL_SPEC Player : public Unit
         void UpdateArmorPenetration();
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void UpdateManaRegen();
+		
+		void ApplyHealthRegenBonus(int32 amount, bool apply);
 
         const uint64& GetLootGUID() const { return m_lootGuid.GetRawValue(); }
         void SetLootGUID(ObjectGuid const& guid) { m_lootGuid = guid; }
@@ -2434,6 +2436,8 @@ class MANGOS_DLL_SPEC Player : public Unit
         void SetPlayerbotMgr(PlayerbotMgr* mgr) { assert(!m_playerbotAI && !m_playerbotMgr); m_playerbotMgr=mgr; }
         PlayerbotMgr* GetPlayerbotMgr() { return m_playerbotMgr; }
         void SetBotDeathTimer() { m_deathTimer = 0; }
+		
+		
 
     protected:
 
@@ -2586,6 +2590,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         uint16 m_baseSpellPower;
         uint16 m_baseFeralAP;
         uint16 m_baseManaRegen;
+		uint16 m_baseHealthRegen;
         float m_armorPenetrationPct;
 
         SpellModList m_spellMods[MAX_SPELLMOD];
