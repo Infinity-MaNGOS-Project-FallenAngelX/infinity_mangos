@@ -168,7 +168,7 @@ UPDATE creature_template SET
     spell4 = 0,
     spell5 = 0,
     spell6 = 0,
-    VehicleId = 146
+    VehicleId = 25
 WHERE entry IN (28864);
 
 /* Frostbrood Vanquisher */
