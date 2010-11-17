@@ -1,3 +1,17 @@
+-- Quest Fix Noth Special Brew
+UPDATE `quest_template` SET `SpecialFlags` = 1 WHERE `entry` = 12717;
+
+DELETE FROM `creature_questrelation` WHERE `quest` = 12716;
+DELETE FROM `gameobject_questrelation` WHERE `quest` = 12716;
+UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 12716;
+INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (28919, 12716);
+UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 28919;
+DELETE FROM `creature_involvedrelation` WHERE `quest` = 12716;
+DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 12716;
+INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (28919, 12716);
+UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=28919;
+UPDATE `quest_template` SET `ExclusiveGroup` = 12716 WHERE `entry` = 12716;
+
 -- ACID scripts for Scarlet Enclave mobs
 -- script_texts
 DELETE FROM `creature_ai_texts` WHERE `entry` BETWEEN -286099 AND -286092;
