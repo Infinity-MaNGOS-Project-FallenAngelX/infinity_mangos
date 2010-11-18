@@ -38,9 +38,6 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 
-// Playerbot mod
-#include "playerbot/PlayerbotAI.h"
-
 bool WorldSession::processChatmessageFurtherAfterSecurityChecks(std::string& msg, uint32 lang)
 {
     if (lang != LANG_ADDON)
@@ -239,15 +236,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
                 }
             }
 
-            // Playerbot mod: handle whispered command to bot
-            if (player->GetPlayerbotAI())
-            {
-                player->GetPlayerbotAI()->HandleCommand(msg, *GetPlayer());
-                GetPlayer()->m_speakTime = 0;
-                GetPlayer()->m_speakCount = 0;
-            }
-            else
-                GetPlayer()->Whisper(msg, lang, player->GetGUID());
+            GetPlayer()->Whisper(msg, lang, player->GetGUID());
         } break;
 
         case CHAT_MSG_PARTY:
@@ -281,19 +270,6 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 
             if ((type == CHAT_MSG_PARTY_LEADER) && !group->IsLeader(_player->GetObjectGuid()))
                 return;
-
-            // Playerbot mod: broadcast message to bot members
-            for(GroupReference* itr = group->GetFirstMember(); itr != NULL; itr=itr->next())
-            {
-                Player* player = itr->getSource();
-                if (player && player->GetPlayerbotAI())
-                {
-                    player->GetPlayerbotAI()->HandleCommand(msg, *GetPlayer());
-                    GetPlayer()->m_speakTime = 0;
-                    GetPlayer()->m_speakCount = 0;
-                }
-            }
-            // END Playerbot mod
 
             WorldPacket data;
             ChatHandler::FillMessageData(&data, this, type, lang, NULL, 0, msg.c_str(), NULL);
@@ -657,7 +633,7 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recv_data )
     //DEBUG_LOG("WORLD: Received CMSG_CHAT_IGNORED");
 
     recv_data >> iguid;
-    recv_data >> unk;                                     // probably related to spam reporting
+    recv_data >> unk;                                       // probably related to spam reporting
 
     Player *player = sObjectMgr.GetPlayer(iguid);
     if(!player || !player->GetSession())
