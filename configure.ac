@@ -304,6 +304,9 @@ AC_CONFIG_FILES([
    src/shared/vmap/Makefile
    src/shared/SystemConfig.h
    src/game/Makefile
+   src/game/playerbot/Makefile
+   src/game/playerbot/config.h
+   src/game/playerbot/playerbot.conf.dist
    src/realmd/Makefile
    src/realmd/realmd.conf.dist
    src/mangosd/Makefile

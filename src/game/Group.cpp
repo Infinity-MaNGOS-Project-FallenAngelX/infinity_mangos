@@ -34,6 +34,7 @@
 #include "MapInstanced.h"
 #include "Util.h"
 #include "LootMgr.h"
+#include "playerbot/PlayerbotMgr.h"
 
 #define LOOT_ROLL_TIMEOUT  (1*MINUTE*IN_MILLISECONDS)
 
@@ -348,6 +349,14 @@ bool Group::AddMember(ObjectGuid guid, const char* name)
 
 uint32 Group::RemoveMember(ObjectGuid guid, uint8 method)
 {
+    //Playerbot mod - if master leaves group, all bots leave group
+    {
+        Player* const player = sObjectMgr.GetPlayer(guid);
+        if (player && player->GetPlayerbotMgr())
+            player->GetPlayerbotMgr()->RemoveAllBotsFromGroup();
+    }
+    //END Playerbot mod 
+	
     // Frozen Mod
     BroadcastGroupUpdate();
     // Frozen Mod

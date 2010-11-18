@@ -172,7 +172,7 @@ struct EquipmentInfo
 // from `creature` table
 struct CreatureData
 {
-    uint32 id;                                              // entry in creature_template
+    uint32 id;                                            // entry in creature_template
     uint16 mapid;
     uint16 phaseMask;
     uint32 modelid_override;                                // overrides any model defined in creature_template
@@ -410,6 +410,9 @@ class MANGOS_DLL_SPEC Creature : public Unit
         bool IsPet() const { return m_subtype == CREATURE_SUBTYPE_PET; }
         bool IsTotem() const { return m_subtype == CREATURE_SUBTYPE_TOTEM; }
         bool IsTemporarySummon() const { return m_subtype == CREATURE_SUBTYPE_TEMPORARY_SUMMON; }
+
+        // Playerbot mod - adds functionality to load/unload bots from NPC, also need to apply SQL scripts
+        void LoadBotMenu(Player *pPlayer);
 
         bool IsCorpse() const { return getDeathState() ==  CORPSE; }
         bool IsDespawned() const { return getDeathState() ==  DEAD; }
