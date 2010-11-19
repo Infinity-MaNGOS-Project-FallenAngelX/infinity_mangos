@@ -272,7 +272,13 @@ enum eConfigFloatValues
     CONFIG_FLOAT_CREATURE_FAMILY_ASSISTANCE_RADIUS,
     CONFIG_FLOAT_GROUP_XP_DISTANCE,
     CONFIG_FLOAT_THREAT_RADIUS,
-    CONFIG_FLOAT_VALUE_COUNT
+    CONFIG_FLOAT_VALUE_COUNT,
+   
+    //PvP Token
+    CONFIG_FLOAT_PVP_TOKEN_ITEMID,
+    CONFIG_FLOAT_PVP_TOKEN_ITEMCOUNT,
+    CONFIG_FLOAT_PVP_TOKEN_GOLD,
+    CONFIG_FLOAT_PVP_TOKEN_RESTRICTION
 };
 
 /// Configuration elements
@@ -329,7 +335,14 @@ enum eConfigBoolValues
     CONFIG_BOOL_LOOT_CHESTS_IGNORE_DB,
     CONFIG_BOOL_PET_UNSUMMON_AT_MOUNT,
     CONFIG_BOOL_ALLOW_FLIGHT_ON_OLD_MAPS,
-    CONFIG_BOOL_VALUE_COUNT
+    CONFIG_BOOL_VALUE_COUNT,
+	
+	// PvP Token
+    CONFIG_BOOL_PVP_TOKEN_ENABLE,
+    // PvP Announcer
+    CONFIG_BOOL_PVP_ANNOUNCER,
+    // Flying Everywhere
+    CONFIG_BOOL_ALLOW_FLYING_MOUNTS_EVERYWHERE
 };
 
 /// Can be used in SMSG_AUTH_RESPONSE packet
@@ -511,6 +524,9 @@ class World
         void SendZoneMessage(uint32 zone, WorldPacket *packet, WorldSession *self = 0, uint32 team = 0);
         void SendZoneText(uint32 zone, const char *text, WorldSession *self = 0, uint32 team = 0);
         void SendServerMessage(ServerMessageType type, const char *text = "", Player* player = NULL);
+		
+        //PVP Announcer
+        void SendPvPAnnounce(Player* killer, Player* killed); 
 
         /// Are we in the middle of a shutdown?
         bool IsShutdowning() const { return m_ShutdownTimer > 0; }
