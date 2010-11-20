@@ -641,10 +641,8 @@ void LoadDBCStores(const std::string& dataPath)
                 sOldContinentsNodesMask[field] |= submask;
 				
             // fix DK node at Ebon Hold
-            if (i == 315) 
-            {
-                ((TaxiNodesEntry*)node)->MountCreatureID[1] = 32981;
-            }
+            if (i == 315)
+               ((TaxiNodesEntry*)node)->MountCreatureID[1] = 32981;
         }
     }
 
