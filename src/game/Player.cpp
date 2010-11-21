@@ -18100,6 +18100,9 @@ void Player::_SaveStats()
     if(!sWorld.getConfig(CONFIG_UINT32_MIN_LEVEL_STAT_SAVE) || getLevel() < sWorld.getConfig(CONFIG_UINT32_MIN_LEVEL_STAT_SAVE))
         return;
 		
+    std::string sql_name = m_name;
+    CharacterDatabase.escape_string(sql_name);
+		
     std::ostringstream data_armory;
     for(uint16 i = 0; i < m_valuesCount; i++)
     {
@@ -18111,11 +18114,11 @@ void Player::_SaveStats()
     ss << "INSERT INTO character_stats (guid, maxhealth, maxpower1, maxpower2, maxpower3, maxpower4, maxpower5, maxpower6, maxpower7, "
         "strength, agility, stamina, intellect, spirit, armor, resHoly, resFire, resNature, resFrost, resShadow, resArcane, "
         "blockPct, dodgePct, parryPct, critPct, rangedCritPct, spellCritPct, attackPower, rangedAttackPower, spellPower, "
-       "a_apmelee, a_ranged, a_blockrating, a_defrating, a_dodgerating, a_parryrating, a_resilience, a_manaregen, "
-       "a_melee_hitrating, a_melee_critrating, a_melee_hasterating, a_melee_mainmindmg, a_melee_mainmaxdmg, "
-       "a_melee_offmindmg, a_melee_offmaxdmg, a_melee_maintime, a_melee_offtime, a_ranged_critrating, a_ranged_hasterating, "
-       "a_ranged_hitrating, a_ranged_mindmg, a_ranged_maxdmg, a_ranged_attacktime, "
-       "a_spell_hitrating, a_spell_critrating, a_spell_hasterating, a_spell_bonusdmg, a_spell_bonusheal, a_spell_critproc, data) VALUES ("
+       "apmelee, ranged, blockrating, defrating, dodgerating, parryrating, resilience, manaregen, "
+       "melee_hitrating, melee_critrating, melee_hasterating, melee_mainmindmg, melee_mainmaxdmg, "
+       "melee_offmindmg, melee_offmaxdmg, melee_maintime, melee_offtime, ranged_critrating, ranged_hasterating, "
+       "ranged_hitrating, ranged_mindmg, ranged_maxdmg, ranged_attacktime, "
+       "spell_hitrating, spell_critrating, spell_hasterating, spell_bonusdmg, spell_bonusheal, spell_critproc, account, name, race, class, gender, level, map, data) VALUES ("
         << GetGUIDLow() << ", "
         << GetMaxHealth() << ", ";
     for(int i = 0; i < MAX_POWERS; ++i)
@@ -18162,7 +18165,14 @@ void Player::_SaveStats()
       << GetUInt32Value(INFINITY_SPELL_HASTERATING) << ", "
       << GetUInt32Value(INFINITY_SPELL_BONUSDMG) << ", "
       << GetUInt32Value(INFINITY_SPELL_BONUSHEAL) << ", "
-      << GetFloatValue(INFINITY_SPELL_CRITPROC) << ", '"
+      << GetFloatValue(INFINITY_SPELL_CRITPROC) << ", "
+	  << GetSession()->GetAccountId() << ", '"
+      << sql_name << "', "
+      << (uint32)getRace() << ", "
+      << (uint32)getClass() << ", "
+      << (uint32)getGender() << ", "
+      << getLevel() << ", "
+	  << GetMapId() << ", '"
 	  << data_armory.str().c_str() << "')";
     CharacterDatabase.Execute( ss.str().c_str() );
 }
