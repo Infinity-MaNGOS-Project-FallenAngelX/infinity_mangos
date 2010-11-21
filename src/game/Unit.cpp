@@ -617,6 +617,26 @@ void Unit::RemoveSpellsCausingAura(AuraType auraType)
     }
 }
 
+Aura* Unit::GetAura(AuraType type, uint32 family, uint32 spellIconID, SpellEffectIndex effindex, uint64 casterGUID)
+{
+    AuraList const& auras = GetAurasByType(type);
+
+    for(AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+    {
+        SpellEntry const* spellProto = (*itr)->GetSpellProto();
+
+        if (spellProto->SpellFamilyName == family && spellProto->SpellIconID == spellIconID && (*itr)->GetEffIndex() == effindex)
+        {
+            if (casterGUID && (*itr)->GetCasterGUID() != casterGUID)
+                continue;
+
+            return *itr;
+        }
+    }
+
+    return NULL;
+}
+
 bool Unit::HasAuraType(AuraType auraType) const
 {
     return (!m_modAuras[auraType].empty());
