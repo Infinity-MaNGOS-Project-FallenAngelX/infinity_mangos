@@ -70,37 +70,37 @@ enum AntiCheatAction
 struct AntiCheatCheckEntry;
 struct AntiCheatConfig;
 
-struct AntiCheat
+class AntiCheat
 {
+
+    public:
         explicit AntiCheat(Player* player);
         ~AntiCheat();
 
-    public:
         // External used for set variables
-        void       SetLastTeleTime(uint32 TeleTime) { m_TeleTime = TeleTime; }
         void       SetTimeSkipped(uint32 time_skipped) { m_currentTimeSkipped = time_skipped; }
         void       SetInFall(bool isFall) { m_isFall = isFall; }
         bool       isCanFly();
         bool       isInFall();
+        bool       isActiveMover() { return m_isActiveMover; }
+        void       SetActiveMover(bool isActive) { m_isActiveMover = isActive; }
+        bool       isImmune();
+        void       SetImmune(uint32 timeDelta);
+        void       SetLastLiveState(DeathState state);
 
         // Checks
         bool CheckNeeded(AntiCheatCheck checktype);
 
         // Check selectors
-        bool DoAntiCheatCheck(AntiCheatCheck checkType, Player* plMover, MovementInfo& movementInfo, uint32 opcode = 0)
+        bool DoAntiCheatCheck(AntiCheatCheck checkType, MovementInfo& movementInfo, uint32 opcode = 0)
             {
-                m_currentMover = plMover; 
                 m_currentmovementInfo = &movementInfo; 
-                m_currentspellID = 0;
                 m_currentOpcode = opcode;
-                m_currentDamage = 0;
                 return _DoAntiCheatCheck(checkType);
             }
 
         bool DoAntiCheatCheck(AntiCheatCheck checkType, uint32 spellID, uint32 opcode = 0, uint32 damage = 0)
             {
-                m_currentMover = NULL; 
-                m_currentmovementInfo = NULL; 
                 m_currentspellID = spellID;
                 m_currentOpcode = opcode;
                 m_currentDamage = damage;
@@ -149,13 +149,17 @@ struct AntiCheat
         AntiCheatCheckEntry*       _FindCheck(AntiCheatCheck checktype);
         AntiCheatConfig const*     _FindConfig(AntiCheatCheck checktype);
         Player*                    GetPlayer() { return m_player;};
+        Unit*                      GetMover()  { return m_currentMover;};
 
         // Saved variables
         float                                   m_MovedLen;          //Length of traveled way
-        uint32                                  m_TeleTime;
+        uint32                                  m_immuneTime;
         bool                                    m_isFall;
         bool                                    m_isTeleported;
+        bool                                    m_isActiveMover;
         uint32                                  m_lastfalltime;
+        uint32                                  m_lastClientTime;
+        DeathState                              m_lastLiveState;
         float                                   m_lastfallz;
         Player*                                 m_player;
         std::map<AntiCheatCheck, uint32>        m_counters;               // counter of alarms
@@ -164,7 +168,7 @@ struct AntiCheat
         std::map<AntiCheatCheck, uint32>        m_lastactiontime;         // last time when action is called
 
         // Variables for current check
-        Player*                    m_currentMover;
+        Unit*                      m_currentMover;
         MovementInfo*              m_currentmovementInfo;
         uint32                     m_currentDamage;
         uint32                     m_currentspellID;

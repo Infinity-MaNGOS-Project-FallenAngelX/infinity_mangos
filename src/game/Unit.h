@@ -757,6 +757,8 @@ struct Position
 
 class MovementInfo
 {
+    friend class AntiCheat;
+
     public:
         MovementInfo() : moveFlags(MOVEFLAG_NONE), moveFlags2(MOVEFLAG2_NONE), time(0),
             t_time(0), t_seat(-1), t_seatInfo(NULL), t_time2(0), s_pitch(0.0f), fallTime(0), u_unk1(0.0f) {}
@@ -804,6 +806,7 @@ class MovementInfo
         uint32 GetVehicleSeatFlags() const { return t_seatInfo ? t_seatInfo->m_flags : 0; }
         uint32 GetTransportTime() const { return t_time; }
         uint32 GetFallTime() const { return fallTime; }
+        void ChangeOrientation(float o) { pos.o = o; }
         void ChangePosition(float x, float y, float z, float o) { pos.x = x; pos.y = y; pos.z = z; pos.o = o; }
         void UpdateTime(uint32 _time) { time = _time; }
 
@@ -1126,6 +1129,16 @@ struct CharmInfo
         GlobalCooldownMgr m_GlobalCooldownMgr;
 };
 
+// used in CallForAllControlledUnits/CheckAllControlledUnits
+enum ControlledUnitMask
+{
+    CONTROLLED_PET       = 0x01,
+    CONTROLLED_MINIPET   = 0x02,
+    CONTROLLED_GUARDIANS = 0x04,                            // including PROTECTOR_PET
+    CONTROLLED_CHARM     = 0x08,
+    CONTROLLED_TOTEMS    = 0x10,
+};
+
 // for clearing special attacks
 #define REACTIVE_TIMER_START 4000
 
@@ -1137,6 +1150,14 @@ enum ReactiveType
 };
 
 #define MAX_REACTIVE 3
+
+// Used as MiscValue for SPELL_AURA_IGNORE_UNIT_STATE
+enum IgnoreUnitState
+{
+    IGNORE_UNIT_TARGET_STATE      = 0,                      // target health, aura states, or combopoints
+    IGNORE_UNIT_COMBAT_STATE      = 1,                      // ignore caster in combat state
+    IGNORE_UNIT_TARGET_NON_FROZEN = 126,                    // ignore absent of frozen state
+};
 
 typedef std::set<uint64> GuardianPetList;
 typedef std::set<uint64> GroupPetList;
@@ -1456,7 +1477,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool IsPolymorphed() const;
 
         bool isFrozen() const;
-        bool isIgnoreUnitState(SpellEntry const *spell);
+        bool IsIgnoreUnitState(SpellEntry const *spell, IgnoreUnitState ignoreState);
 
         void RemoveSpellbyDamageTaken(AuraType auraType, uint32 damage);
 
@@ -1536,7 +1557,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         ObjectGuid const& GetChannelObjectGuid() const { return GetGuidValue(UNIT_FIELD_CHANNEL_OBJECT); }
         void SetChannelObjectGuid(ObjectGuid targetGuid) { SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, targetGuid); }
 
-        void SetCritterGuid(ObjectGuid critter) { SetGuidValue(UNIT_FIELD_CRITTER, critter); }
+        void SetCritterGuid(ObjectGuid critterGuid) { SetGuidValue(UNIT_FIELD_CRITTER, critterGuid); }
         ObjectGuid const& GetCritterGuid() const { return GetGuidValue(UNIT_FIELD_CRITTER); }
 
         void RemoveMiniPet();
@@ -1600,9 +1621,9 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         void _RemoveTotem(Totem* totem);                    // only for call from Totem class
 
         template<typename Func>
-        void CallForAllControlledUnits(Func const& func, bool withTotems, bool withGuardians, bool withCharms, bool withMiniPet = false);
+        void CallForAllControlledUnits(Func const& func, uint32 controlledMask);
         template<typename Func>
-        bool CheckAllControlledUnits(Func const& func, bool withTotems, bool withGuardians, bool withCharms, bool withMiniPet = false) const;
+        bool CheckAllControlledUnits(Func const& func, uint32 controlledMask) const;
 
         bool AddSpellAuraHolder(SpellAuraHolder *holder);
         void AddAuraToModList(Aura *aura);
@@ -2120,60 +2141,69 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 };
 
 template<typename Func>
-void Unit::CallForAllControlledUnits(Func const& func, bool withTotems, bool withGuardians, bool withCharms, bool withMiniPet)
+void Unit::CallForAllControlledUnits(Func const& func, uint32 controlledMask)
 {
-    if (!m_groupPets.empty())
+    if (controlledMask & CONTROLLED_PET)
     {
-        GroupPetList m_groupPetsTmp = GetPets();  // Original list may be modified in this function
-        for (GroupPetList::const_iterator itr = m_groupPetsTmp.begin(); itr != m_groupPetsTmp.end(); ++itr)
+        if (!m_groupPets.empty())
         {
-            if (Pet* pet = _GetPet(*itr))
-                func(pet);
+            GroupPetList m_groupPetsTmp = GetPets();  // Original list may be modified in this function
+            for (GroupPetList::const_iterator itr = m_groupPetsTmp.begin(); itr != m_groupPetsTmp.end(); ++itr)
+            {
+                if (Pet* pet = _GetPet(*itr))
+                    func(pet);
+            }
         }
     }
 
-    if (withGuardians)
+    if (controlledMask & CONTROLLED_MINIPET)
+        if (Unit* mini = GetMiniPet())
+            func(mini);
+
+    if (controlledMask & CONTROLLED_GUARDIANS)
     {
-        for(GuardianPetList::const_iterator itr = m_guardianPets.begin(); itr != m_guardianPets.end(); ++itr)
-            if (Pet* guardian = _GetPet(*itr))
+        for(GuardianPetList::const_iterator itr = m_guardianPets.begin(); itr != m_guardianPets.end();)
+            if (Pet* guardian = _GetPet(*(itr++)))
                 func(guardian);
     }
 
-    if (withTotems)
+    if (controlledMask & CONTROLLED_TOTEMS)
     {
         for (int i = 0; i < MAX_TOTEM_SLOT; ++i)
             if (Unit *totem = _GetTotem(TotemSlot(i)))
                 func(totem);
     }
 
-    if (withCharms)
+    if (controlledMask & CONTROLLED_CHARM)
         if (Unit* charm = GetCharm())
             func(charm);
 
-    if (withMiniPet)
-        if(Unit* mini = GetMiniPet())
-            func(mini);
 }
 
 template<typename Func>
-bool Unit::CheckAllControlledUnits(Func const& func, bool withTotems, bool withGuardians, bool withCharms, bool withMiniPet) const
+bool Unit::CheckAllControlledUnits(Func const& func, uint32 controlledMask) const
 {
+    if (controlledMask & CONTROLLED_PET)
+        for (GroupPetList::const_iterator itr = m_groupPets.begin(); itr != m_groupPets.end(); ++itr)
+           if (Pet* pet = _GetPet(*itr))
+               if (func(pet))
+                   return true;
 
-   for (GroupPetList::const_iterator itr = m_groupPets.begin(); itr != m_groupPets.end(); ++itr)
-       if (Pet* pet = _GetPet(*itr))
-           if (func(pet))
-               return true;
+    if (controlledMask & CONTROLLED_MINIPET)
+        if(Unit const* mini = GetMiniPet())
+            if (func(mini))
+                return true;
 
-    if (withGuardians)
+    if (controlledMask & CONTROLLED_GUARDIANS)
     {
-        for(GuardianPetList::const_iterator itr = m_guardianPets.begin(); itr != m_guardianPets.end(); ++itr)
-            if (Pet const* guardian = _GetPet(*itr))
+        for(GuardianPetList::const_iterator itr = m_guardianPets.begin(); itr != m_guardianPets.end();)
+            if (Pet const* guardian = _GetPet(*(itr++)))
                 if (func(guardian))
                     return true;
 
     }
 
-    if (withTotems)
+    if (controlledMask & CONTROLLED_TOTEMS)
     {
         for (int i = 0; i < MAX_TOTEM_SLOT; ++i)
             if (Unit const* totem = _GetTotem(TotemSlot(i)))
@@ -2181,14 +2211,9 @@ bool Unit::CheckAllControlledUnits(Func const& func, bool withTotems, bool withG
                     return true;
     }
 
-    if (withCharms)
+    if (controlledMask & CONTROLLED_CHARM)
         if (Unit const* charm = GetCharm())
             if (func(charm))
-                return true;
-
-    if (withMiniPet)
-        if(Unit const* mini = GetMiniPet())
-            if (func(mini))
                 return true;
 
     return false;
