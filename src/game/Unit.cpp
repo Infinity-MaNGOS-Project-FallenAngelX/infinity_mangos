@@ -583,6 +583,14 @@ void Unit::SendHeartBeat(bool toSelf)
     SendMessageToSet(&data, toSelf);
 }
 
+void Unit::BuildHeartBeatMsg(WorldPacket *data) const 
+{ 
+    data->Initialize(MSG_MOVE_HEARTBEAT); 
+    *data << GetPackGUID(); 
+    m_movementInfo.Write(*data); 
+} 
+
+
 void Unit::resetAttackTimer(WeaponAttackType type)
 {
     m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]);
