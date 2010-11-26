@@ -2829,13 +2829,29 @@ void Unit::CalculateHealAbsorb(const uint32 heal, uint32 *absorb)
 
 void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool extra )
 {
-    if(hasUnitState(UNIT_STAT_CAN_NOT_REACT) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED) )
-        return;
+    if (hasUnitState(UNIT_STAT_CAN_NOT_REACT) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
+    {
+        bool bAllowMeleeAttack = false;
+       
+        VehicleKit* pVehicle = GetVehicle();
+        if (pVehicle)
+        {
+            Unit* pVehicleUnit = pVehicle->GetBase();
+            uint32 uiEntry = 0;
+            if (pVehicleUnit)
+                uiEntry = pVehicleUnit->GetEntry();
+            if (uiEntry == 30248)
+                bAllowMeleeAttack = true;
+        }
+ 
+        if (!bAllowMeleeAttack)
+            return;
+    }
 
     if (!pVictim->isAlive())
         return;
 
-    if(IsNonMeleeSpellCasted(false))
+    if (IsNonMeleeSpellCasted(false))
         return;
 
     uint32 hitInfo;
@@ -2889,7 +2905,7 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool ex
         ((Creature*)pVictim)->AI()->AttackedBy(this);
 
     // extra attack only at any non extra attack (normal case)
-    if(!extra && extraAttacks)
+    if (!extra && extraAttacks)
     {
         while(m_extraAttacks)
         {
@@ -2923,7 +2939,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit *pVictim, WeaponAttackT
 
 MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit *pVictim, WeaponAttackType attType, int32 crit_chance, int32 miss_chance, int32 dodge_chance, int32 parry_chance, int32 block_chance) const
 {
-    if(pVictim->GetTypeId()==TYPEID_UNIT && ((Creature*)pVictim)->IsInEvadeMode())
+    if (pVictim->GetTypeId()==TYPEID_UNIT && ((Creature*)pVictim)->IsInEvadeMode())
         return MELEE_HIT_EVADE;
 
     int32 attackerMaxSkillValueForLevel = GetMaxSkillValueForLevel(pVictim);
@@ -3009,7 +3025,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit *pVictim, WeaponAttack
     }
 
     // Max 40% chance to score a glancing blow against mobs that are higher level (can do only players and pets and not with ranged weapon)
-    if( attType != RANGED_ATTACK &&
+    if ( attType != RANGED_ATTACK &&
         (GetTypeId() == TYPEID_PLAYER || ((Creature*)this)->IsPet()) &&
         pVictim->GetTypeId() != TYPEID_PLAYER && !((Creature*)pVictim)->IsPet() &&
         getLevel() < pVictim->GetLevelForTarget(this) )
@@ -4324,6 +4340,13 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
         delete holder;
         return false;
     }
+	
+    // Strength of the Pack must affect only Sanctum Sentries and exclude caster too (Auriaya encounter, Ulduar)
+   if (holder->GetId() == 64381 && (this->GetEntry() != 34014 || this->GetGUID() == holder->GetCasterGUID()))
+   {
+       delete holder;
+       return false;
+   }
 
     // passive and persistent auras can stack with themselves any number of times
     if ((!holder->IsPassive() && !holder->IsPersistent()) || holder->IsAreaAura())
@@ -4390,6 +4413,10 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
 
                 // m_auraname can be modified to SPELL_AURA_NONE for area auras, use original
                 AuraType aurNameReal = AuraType(aurSpellInfo->EffectApplyAuraName[i]);
+				
+				// Strength of the Pack must stuck from different casters (Auriaya encounter, Ulduar)
+                if (foundHolder->GetId() == 64381)
+                    continue;
 
                 switch(aurNameReal)
                 {
