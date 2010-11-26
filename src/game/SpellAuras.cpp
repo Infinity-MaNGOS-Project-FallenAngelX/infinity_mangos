@@ -5292,12 +5292,13 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
             target->CastSpell(target, 41915, true);
 			
 		// Deathbloom (Naxxramas - Loatheb normal)
-        if (m_spellProto->Id == 29865)
-            m_target->CastSpell(m_target, 55594, true);
+        if (spellProto->Id == 29865)
+            target->CastSpell(target, 55594, true);
 
         // Deathbloom (Naxxramas - Loatheb heroic)
-        if (m_spellProto->Id == 55053)
-            m_target->CastSpell(m_target, 55601, true);	
+        if (spellProto->Id == 55053)
+            target->CastSpell(target, 55601, true);
+			
         else if (spellProto->Id == 74562) // SPELL_FIERY_COMBUSTION - Ruby sanctum boss Halion
             target->CastSpell(target, 74607, true, NULL, NULL, GetCasterGUID());
         else if (spellProto->Id == 74792) // SPELL_SOUL_CONSUMPTION - Ruby sanctum boss Halion
