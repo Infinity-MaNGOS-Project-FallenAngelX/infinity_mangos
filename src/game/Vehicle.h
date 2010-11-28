@@ -44,7 +44,7 @@ public:
     void Reset();
 
     bool HasEmptySeat(int8 seatId) const;
-    Unit *GetPassenger(int8 seatId) const;
+    MANGOS_DLL_SPEC Unit *GetPassenger(int8 seatId) const;
     int8 GetNextEmptySeat(int8 seatId, bool next) const;
     bool AddPassenger(Unit *passenger, int8 seatId = -1);
     void RemovePassenger(Unit *passenger);
