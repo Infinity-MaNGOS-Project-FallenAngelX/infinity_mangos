@@ -7257,6 +7257,26 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->RemoveSpellsCausingAura(SPELL_AURA_MOD_STUN);
                     return;
                 }
+                // Glyph of Starfire
+                case 54846:
+                {
+                    if (Aura* aura = unitTarget->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, UI64LIT(0x00000002), 0, m_caster->GetGUID()))
+                    {
+                        uint32 countMin = aura->GetAuraMaxDuration();
+                        uint32 countMax = GetSpellMaxDuration(aura->GetSpellProto());
+                        countMax += 9000;
+                        countMax += m_caster->HasAura(38414) ? 3000 : 0;
+                        countMax += m_caster->HasAura(57865) ? 3000 : 0;
+
+                        if (countMin < countMax)
+                        {
+                            aura->SetAuraDuration(aura->GetAuraDuration() + 3000);
+                            aura->SetAuraMaxDuration(countMin + 3000);
+                            aura->GetHolder()->SendAuraUpdate(false);
+                        }
+                    }
+                    return;
+                }
                 case 55328:                                    // Stoneclaw Totem I
                 case 55329:                                    // Stoneclaw Totem II
                 case 55330:                                    // Stoneclaw Totem III
@@ -8720,6 +8740,15 @@ void Spell::EffectLeapBack(SpellEffectIndex eff_idx)
         return;
 
     m_caster->KnockBackFrom(unitTarget,float(m_spellInfo->EffectMiscValue[eff_idx])/10,float(damage)/10);
+    // Disengage - combat stop
+    if (m_spellInfo->Id == 781)
+    {
+        m_caster->CombatStop();
+        // prevent interrupt message
+        m_caster->FinishSpell(CURRENT_GENERIC_SPELL,false);
+        m_caster->InterruptNonMeleeSpells(true);
+        m_caster->getHostileRefManager().deleteReferences();
+    }
 }
 
 void Spell::EffectReputation(SpellEffectIndex eff_idx)
@@ -8940,6 +8969,21 @@ void Spell::EffectKnockBack(SpellEffectIndex eff_idx)
 {
     if(!unitTarget)
         return;
+		
+    // Typhoon
+    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags & UI64LIT(0x100000000000000) )
+        if (m_caster->HasAura(62135)) // Glyph of Typhoon
+            return;
+
+    // Thunderstorm
+    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN && m_spellInfo->SpellFamilyFlags & UI64LIT(0x00200000000000))
+        if (m_caster->HasAura(62132)) // Glyph of Thunderstorm
+            return;
+
+    // Blast Wave
+    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_MAGE && m_spellInfo->SpellFamilyFlags & UI64LIT(0x0004000000000))
+        if (m_caster->HasAura(62126)) // Glyph of Blast Wave
+            return;
 
     unitTarget->KnockBackFrom(m_caster,float(m_spellInfo->EffectMiscValue[eff_idx])/10,float(damage)/10);
 }
