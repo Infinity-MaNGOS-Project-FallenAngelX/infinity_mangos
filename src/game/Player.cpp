@@ -18111,6 +18111,17 @@ void Player::_SaveStats()
     if(!sWorld.getConfig(CONFIG_UINT32_MIN_LEVEL_STAT_SAVE) || getLevel() < sWorld.getConfig(CONFIG_UINT32_MIN_LEVEL_STAT_SAVE))
         return;
 		
+	std::ostringstream cs;
+    cs<<"UPDATE characters SET data='";
+
+    for(uint16 i = 0; i < m_valuesCount; ++i )
+    {
+        cs << GetUInt32Value(i) << " ";
+    }
+    cs<<"' WHERE guid='"<< GUID_LOPART(GetGUIDLow()) <<"'";
+
+    CharacterDatabase.Execute(cs.str().c_str());
+   
     std::string sql_name = m_name;
     CharacterDatabase.escape_string(sql_name);
 		
@@ -18129,7 +18140,7 @@ void Player::_SaveStats()
        "melee_hitrating, melee_critrating, melee_hasterating, melee_mainmindmg, melee_mainmaxdmg, "
        "melee_offmindmg, melee_offmaxdmg, melee_maintime, melee_offtime, ranged_critrating, ranged_hasterating, "
        "ranged_hitrating, ranged_mindmg, ranged_maxdmg, ranged_attacktime, "
-       "spell_hitrating, spell_critrating, spell_hasterating, spell_bonusdmg, spell_bonusheal, spell_critproc, account, name, race, class, gender, level, map, data) VALUES ("
+       "spell_hitrating, spell_critrating, spell_hasterating, spell_bonusdmg, spell_bonusheal, spell_critproc, account, name, race, class, gender, level, map, specCount, activeSpec, data) VALUES ("
         << GetGUIDLow() << ", "
         << GetMaxHealth() << ", ";
     for(int i = 0; i < MAX_POWERS; ++i)
@@ -18183,7 +18194,9 @@ void Player::_SaveStats()
       << (uint32)getClass() << ", "
       << (uint32)getGender() << ", "
       << getLevel() << ", "
-	  << GetMapId() << ", '"
+	  << GetMapId() << ", "
+	  << uint32(m_specsCount) << ", "
+      << uint32(m_activeSpec) << ", '"
 	  << data_armory.str().c_str() << "')";
     CharacterDatabase.Execute( ss.str().c_str() );
 }

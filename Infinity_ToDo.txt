@@ -7,3 +7,5 @@
 4. Jail system
 
 5. fix bug with quest ambush at overlook   quest works fine   and credit is fine
+
+6.fix custom tokenvendor and custom talent point stone item ( so far this is all i have tested in customs area )
