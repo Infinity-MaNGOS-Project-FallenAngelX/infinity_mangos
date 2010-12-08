@@ -785,7 +785,7 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleQueryQuestsCompletedOpcode(WorldPacket& recv_data);
         void HandleQuestPOIQueryOpcode(WorldPacket& recv_data);
         // External mail 
-        static void SendExternalMails(); 
+        //static void SendExternalMails(); 
 
 
     private:

@@ -154,6 +154,9 @@ void Creature::AddToWorld()
         GetMap()->GetObjectsStore().insert<Creature>(GetGUID(), (Creature*)this);
 
     Unit::AddToWorld();
+
+    if (GetVehicleKit())
+        GetVehicleKit()->Reset();
 }
 
 void Creature::RemoveFromWorld()
@@ -283,10 +286,9 @@ bool Creature::InitEntry(uint32 Entry, const CreatureData *data )
 
     SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
 
-    SetSpeedRate(MOVE_WALK, cinfo->speed_walk);
-    SetSpeedRate(MOVE_RUN,  cinfo->speed_run);
-    SetSpeedRate(MOVE_SWIM, 1.0f);                          // using 1.0 rate
-    SetSpeedRate(MOVE_FLIGHT, 1.0f);                        // using 1.0 rate
+    // update speed for the new CreatureInfo base speed mods
+    UpdateSpeed(MOVE_WALK, false);
+    UpdateSpeed(MOVE_RUN,  false);
 
     // checked at loading
     m_defaultMovementType = MovementGeneratorType(cinfo->MovementType);
@@ -1866,8 +1868,8 @@ bool Creature::LoadCreatureAddon(bool reload)
     // 1 UnitPVPStateFlags  Set at Creature::UpdateEntry (SetPvp())
     // 2 UnitRename         Pet only, so always 0 for default creature
     // 3 ShapeshiftForm     Must be determined/set by shapeshift spell/aura
-    if (cainfo->stash != 0)
-        SetByteValue(UNIT_FIELD_BYTES_2, 0, cainfo->stash);
+    if (cainfo->sheath_state != 0)
+        SetByteValue(UNIT_FIELD_BYTES_2, 0, cainfo->sheath_state);
 
     if (cainfo->pvp_state != 0)
         SetByteValue(UNIT_FIELD_BYTES_2, 1, cainfo->pvp_state);
