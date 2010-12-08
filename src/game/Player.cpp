@@ -18137,7 +18137,7 @@ void Player::_SaveStats()
     {
         cs << GetUInt32Value(i) << " ";
     }
-    cs<<"' WHERE guid='"<< GetOwnerGuid().GetCounter() <<"'";
+    cs<<"' WHERE guid='"<< GetGUIDLow() <<"'";
 
     CharacterDatabase.Execute(cs.str().c_str());
 	
