@@ -1,0 +1,2657 @@
+The basic idea of creature scripting in scriptdev2 is that a we are taking a template (class ScriptedAI) and expanding upon it to make whatever script we need. 
+
+
+================================================================================================
+Code:
+struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
+{
+
+****//This is the constructor, it is called the very instant that this creature is created
+****boss_kelthuzadAI(Creature* c) : ScriptedAI(c)
+****{
+********//Calling evade here at the beginning makes sure that we reset any defined variables
+********EnterEvadeMode();
+****}
+
+****//Called whenever we need to Evade and reset to our starting position
+****void EnterEvadeMode();
+
+****//Called the instant we kill another unit
+****void KilledUnit();
+
+****//Called the instant this unit dies
+****void JustDied(Unit* Killer);
+
+****//Called when we are attacked or when start attacking someone else
+****void AttackStart(Unit* who);
+****
+****//Called anytime someone moves in LOS.
+****void MoveInLineOfSight(Unit *who);
+
+****//Called every Map Update ////  which is around every 100 ms to 120 ms
+****void UpdateAI(const uint32 diff);
+
+};
+
+
+
+===============================================================================================
+Basically we are given these 7 functions and allowed to code them. So all most all creature scripting is done within these 7 functions. 
+
+One more thing. There is a special variable (part of ScriptedAI) called m_creature. M_creature always points to the creature who the script is associated with. 
+
+So lets say I want my creature to yell something whenever someone moves in line of sight of it.
+
+========================================================================================================
+Code:
+struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
+{
+
+****//This is the constructor, it is called the very instant that this creature is created
+****boss_kelthuzadAI(Creature* c) : ScriptedAI(c)
+****{
+********//Calling evade here at the beginning makes sure that we reset any defined variables
+********EnterEvadeMode();
+****}
+
+****//Called whenever we need to Evade and reset to our starting position
+****void EnterEvadeMode();
+
+****//Called the instant we kill another unit
+****void KilledUnit();
+
+****//Called the instant this unit dies
+****void JustDied(Unit* Killer);
+
+****//Called when we are attacked or when start attacking someone else
+****void AttackStart(Unit* who);
+****
+****//Called anytime someone moves in LOS.
+****void MoveInLineOfSight(Unit *who);
+****{
+***********if (!who) return;
+
+***********DoYell("$N moved in Line of sight of me! Setting my HP to $N's HP", LANG_UNIVERSAL, who);
+***********m_creature->SetHealth(m_creature->GetVictim()->GetHealth());
+****}
+
+****//Called every Map Update
+****void UpdateAI(const uint32 diff);
+
+};
+=======================================================================================================
+As you can tell scripting is designed to be very easy but still maintain power. Most of the functions that you will use will be from m_creature-> (member functions of Creature*). There are a few wrappers that came with ScriptDev 1 and some others that I created to make scripting easier such as SelectSpell which will automatically select a spell from the creature's spell list (in the DB) based on the given criteria. These wrapper spells are all defined in ScriptMgr.h.
+
+There is a little more to it than that but I think you get the basic idea.
+====================================================================================================
+
+########## A few Good Q&A ##############################
+
+Q# Maybe this is not a basic question, but how you make the creature perform something for example when it is with 50% HP, or something like that... 
+
+A# You have to add something like this into void UpdateAI:
+
+Code:
+ if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 50 && !HasYelled)
+{
+//Do something
+HasYelled = true;
+}
+---------------------------------------------------------------------------------------------------------
+Q# can someone explain better when attackstart is called? is it called only at the first attack recieved? 
+
+A# No, AttackStart is called any time the AI is told to switch targets whether that be from no target to our first target or from player 1 to player 2 while in combat. This was changed when Ambal implemented his Aggro patch. I guess I never updated the comments in my files. 
+
+-----------------------------------------------------------------------------------------------------------
+
+
+YET ANOTHER SD2 Guide
+
+Using ScriptDev2 you can write amazing, complex, and unique scripts. You can write scripts for the following things:
+
+- Creatures
+- Items
+- Gameobjects
+- Instances
+
+Before you begin, it is recommended that you have a basic idea of C++ syntax. This is because everything you make in ScriptDev2 is done using C++ and if you know the basic syntax, then you should not have much trouble writing scripts. However, if you do not, you can try and follow along and make scripts as you learn new things. This may even be your first C++ experience (it was mine :P).
+
+Also, you should have a nice coding environment. You can write C++ scripts in simple text editors, like Notepad, although a proper coding environment may help you with things like syntax coloring and other helpful things. I use Xcode (on Mac) but there is also DevC++ and Visual C++ on Windows. You may not be compiling with this program, but it helps distinguish different parts of the code from others.
+
+What can I script?
+================================================== ===
+
+What can I script using a creature script?
+---------------------------------------------------------------------------------------------
+
+You can script the following things:
+
+- When someone talks to the creature (the creature must have the gossip flag set on it's creature_template entry.)
+- When someone accepts a quest from the creature.
+- When someone finishes a quest from the creature.
+- When someone chooses a quest reward from the creature (after the quest finish dialog.)
+- When someone selects a gossip item from the creature's gossip menu.
+- When someone enters a code from a pop-up codebox from the creature.
+- When the server calls GetAI() for the creature, you can route this to use a custom AI you write (see further on for how to do this.) Using the AI you can further expand creature scripting capabilities.
+- When someone casts a dummy spell on the creature.
+
+What can I script using an item script?
+---------------------------------------------------------------------------------------------
+
+You can script the following things:
+
+- When someone uses the item (i.e. right-clicking it, it must have a dummy spell set to "on use" or else it will not work.)
+- When someone accepts a quest from an item.
+- When someone casts a dummy spell on the item.
+
+What can I script using a gameobject script?
+---------------------------------------------------------------------------------------------
+
+You can script the following things:
+
+- When someone uses the gameobject (it must be type 1 - Button.)
+- When someone accepts a quest from an gameobject.
+- When someone chooses a quest reward from the gameobject (after the quest finish dialog.)
+- When someone casts a dummy spell on the gameobject.
+
+What can I script using a instance script?
+---------------------------------------------------------------------------------------------
+
+You can script the following things:
+
+- When the server calls GetAI() for the map, you can write this to use a custom AI you write (see further on for how to do this.) Using the AI you can further expand instance scripting capabilities (the map MUST be an instance.)
+
+What can I script using a creature AI script?
+---------------------------------------------------------------------------------------------
+
+You can script the following things:
+
+- When someone moves inside of the creature's line of sight
+- When someone attacks the creature
+- When the creature resets (i.e. stops attacking, moves back to home locations, and enters evade mode.)
+- When the creature is healed by something.
+- When the creature deals damage.
+- When the creature takes damage.
+- When the creature is updated (the script updates roughly once every 1/1000 of a second, so one second is 1000 ticks. This can be used for timers.)
+- When the creature dies.
+- When the creature kills something else.
+- When the creature summons another creature.
+- When the summoned creature despawns.
+- When the creature is hit by a spell.
+- When the creature respawns.
+- When the creature moves to a point (if you use MovePoint() to send the creature somewhere, when it arrives there this is called.)
+- When a creature enters evade mode.
+- When a creature aggros for the first time.
+
+What can I script using an instance AI script?
+---------------------------------------------------------------------------------------------
+
+You can script the following things:
+
+- Setting a variable in the instance script.
+- Getting the value of a variable in the instance script.
+- When the instance is updated (is just like creature AI scripts.)
+- Loading and saving instance data.
+
+---------------------------------------------------------------------------------------------
+
+That is everything that you can script that is called from the core. You can script each one of those to do something new and unique depending on what you need exactly.
+
+What functions can I use in my scripts?
+================================================== ===
+
+First off, you have a wide selection of functions before you for you to use. As-is, you can call any function belonging to the Unit, Player, Creature, Gameobject, or Map classes. To find these, you can search their appropriate .h source files in the game folder. Most functions are named obviously: if you want to teleport a player, you would use TeleportTo().
+
+However, there are also extra "helper functions" located inside of /include/sc_gossip.h and sc_creature.h. They can make scripting easier by reducing the number of inputs necessary to do simple things. You can read information about the gossip help functions in sc_gossip.h. These include functions that close gossip menus and add gossip items. Creature helper functions include functions for casting spells, for yelling, for playing emotes, or resetting the threat list, but these can only be used with creature AI scripts. There are also a number of useful grid searcher functions in sc_grid_searchers.h available to use in any script. 	 
+Quote: 
+ 
+Scripting Using ScriptDev2 by Patman64 - Part II: Formatting and Organization
+================================================== ===
+
+If you open any script in ScriptDev2 SVN, you will notice a certain format. The script is organized into a few different sections. I will discuss these sections and their functions. You must remember, however, that spacing is not sensitive in C++ and you can space your script any way you want.
+
+An outline of the sections
+================================================== ===
+
+They are organized into the following sections:
+
+- The comment part at the top. (optional)
+- Any includes and defines.
+- The scripted functions or AIs as functions or classes respectively.
+- The "interface section" at the bottom.
+
+The comment section
+---------------------------------------------------------------------------------------------
+
+The comment section contains any comments about the script and any legal information. Inside any ScriptDev2 SVN script, this is where the license is located. There may also be another comment section under this with ScriptData, used for telling about what the script does and how complete it is. ScriptData is only for use by the ScriptDev2 team and is generally not used in custom scripts. The comment section is optional and may be left out completely as it serves no actual function in-game.
+
+Includes & Defines
+---------------------------------------------------------------------------------------------
+
+Thanks to recent developments, basic scripts should only need to include one file, precompiled.h. If you need to include any other files for use of their functions, their includes would go here. Defines are used to tie things such as spell IDs to a name and are used for organization only. Recently, defines have been replaced by enums. However, enums can only hold integers (positive or negative numbers without decimals.) You can see examples of this in almost any script in the SVN.
+
+Scripted functions and AIs
+---------------------------------------------------------------------------------------------
+
+When you script a function, it takes on it's own section. The same with AIs, except they require an extra function in order to work (GetAI(), outlined in part I.) You will see examples of a function section later on.
+
+The interface
+---------------------------------------------------------------------------------------------
+
+The interface is needed in any script file. It tells the server what functions (or AIs) you scripted and where to find them in the file. The interface is called from ScriptMgr.cpp. You will see how to make an interface for your script later on.
+
+================================================== ===
+
+In the next section we will start to build a script and see what the process is in making one and the parts involved more closely. 	 
+Quote: 
+ 
+Scripting Using ScriptDev2 by Patman64 - Part III: Scripted Functions
+================================================== ===
+
+Here is a closer look at scripted functions (please refer to part 1 for a list of all scriptable functions)
+
+The first line: the starting line
+================================================== ===
+
+The first line of the function is the starting point to scripting the function. For this example, we will script a quest accept function (QuestAccept) so that when a player accepts a quest (quest ID: 20000) it will make the creature say a piece of text ("So I heard you like mudkips?") and this script will be called "npc_example".
+
+The first line of a QuestAccept function looks like this:
+
+bool QuestAccept_npc_example(Player *pPlayer, Creature *pCreature, Quest const *pQuest)
+
+As you can see, it has been modified to be unique by adding the name of our NPC script (npc_example) in. If you know some C++, you will see that it accept 3 inputs: the player who accepted the quest (set to "pPlayer") the creature who gave the quest (set to "pCreature") and the quest itself (set to "pQuest"). You can name the inputs to whatever you want, I just named them this to illustrate that they are pointers. You can also see that it returns a boolean value (true or false) which is then used by the core. We are going to return true no matter what.
+
+Filling in the blanks
+================================================== ===
+
+Now, we will simply define the function to do what we intended. We will first check that the quest is indeed the one we want by calling "GetQuestId()" via the quest pointer (pQuest). If it is, the creature will say it's text. If not, it will simply skip this. Then, it will return true regardless of the quest's ID.
+
+bool QuestAccept_npc_example(Player *pPlayer, Creature *pCreature, Quest const *pQuest)
+{
+if(pQuest->GetQuestId() == 20000)
+pCreature->MonsterSay("So I heard you like mudkips?", LANG_UNIVERSAL, 0);
+
+return true;
+}
+
+================================================== ===
+
+There, that is it. The function is now defined to do what we want. Next, we will see how to use the interface to give this function a name to the core and make it usable. 	 
+Quote: 
+ 
+Scripting Using ScriptDev2 by Patman64 - Part IV: The Interface
+================================================== ===
+
+The interface is one of the most crucial components: it adds the script into the scripting system and allows the core to access it. Here is a look at how it is used.
+
+The top line
+================================================== ===
+
+The top line is called via "ScriptMgr.cpp" and runs the interface section. It looks like this:
+
+void AddSC_npc_example()
+
+Here we have made it unique by adding the NPC name (npc_example) to the function. It accepts no input and returns no output: it simply modifies the scripting system by adding in your scripts to the mix.
+
+The rest
+================================================== ===
+
+Next comes the line:
+
+Script *newscript;
+
+Which just creates an empty pointer of the type Script called "newscript" (don't worry about this, you don't need to change it.)
+
+After this comes the part of putting your scripted functions into the mix. We will use the function we defined in Part 3 (QuestAccept_npc_example) and give it a script name of "npc_example". The script name is what you put into the "ScriptName" field of item/creature/gameobject/instance/areatrigger_template in order to apply the script to that item/creature/gameobject/instance/areatrigger. Here is what it will look like:
+
+newscript = new Script;
+newscript->Name="npc_example";
+newscript->pQuestAccept = &QuestAccept_npc_example;
+newscript->RegisterSelf();
+
+The second line is the script name. The third line is where we set the script's QuestAccept function to use the function we defined in Part 3. If you were using a different kind of function, like "QuestComplete", then you would use "newscript->pQuestComplete = &whatever" instead of this. Note the "p" and the "&" here: they are very important.
+
+Wrapping it up
+================================================== ===
+
+So, to put it all together, here is what the finished interface for the script would look like:
+
+void AddSC_npc_example()
+{
+Script *newscript;
+
+newscript = new Script;
+newscript->Name="npc_example";
+newscript->pQuestAccept = &QuestAccept_npc_example;
+newscript->RegisterSelf();
+}
+
+================================================== ===
+
+That is all, now the function we defined in Part 3 is tied to the script name "npc_example". In the next section we will put it all together into a script file. 	 
+Quote: 
+ 
+Scripting Using ScriptDev2 by Patman64 - Part V: Wrapping it up
+================================================== ===
+
+Here is where everything is put together: a brief intro comment section, the includes needed, the scripted function, and the interface. The comment section is first, and contains the name of the script as well as a brief description. Because this doesn't actually do anything, you can style it anyway you want and put whatever you want. Then, we include the necessary file (precompiled.h). Then the function is inserted, and then the interface.
+
+The script: npc_example.cpp
+================================================== ===
+
+/* npc_example
+*
+* A simple NPC script that says a piece of text
+* when a players accept quest 20000 from it.
+*/
+
+#include "precompiled.h"
+
+enum
+{
+OUR_QUEST = 20000//, you need a , at the end of every enum line except the last
+};
+
+#define SAY_KIPZ "So I heard you like mudkips?"
+
+bool QuestAccept_npc_example(Player *pPlayer, Creature *pCreature, Quest const *pQuest)
+{
+if(pQuest->GetQuestId() == OUR_QUEST)
+pCreature->MonsterSay(SAY_KIPZ, LANG_UNIVERSAL, 0);
+
+return true;
+}
+
+void AddSC_npc_example()
+{
+Script *newscript;
+
+newscript = new Script;
+newscript->Name="npc_example";
+newscript->pQuestAccept = &QuestAccept_npc_example;
+newscript->RegisterSelf();
+}
+
+================================================== ===
+
+And that's it. In the next section we will see how this script and others are compiled into the script library used by the core. 	   
+Scripting Using ScriptDev2 by Patman64 - Part VI: Compiling Time
+================================================== ===
+
+Now everything is to be put together into one big library, to be used with mangos. This is how to finish adding it to the system and compiling it in.
+
+Adding the scripting into the script manager
+================================================== ===
+
+Now we will change the scripting system so it loads your script in. Open the file system/ScriptLoader.cpp. Look down to where it says
+
+//custom
+
+Right after this line, you will be adding in the function of the interface for the script you made. As you can remember, the script interface looked like so:
+
+void AddSC_npc_example()
+{
+Script *newscript;
+
+newscript = new Script;
+newscript->Name="npc_example";
+newscript->pQuestAccept = &QuestAccept_npc_example;
+newscript->RegisterSelf();
+}
+
+Thus the function is AddSC_npc_example(). Add it in after the first custom:
+
+//custom
+extern void AddSC_npc_example();
+
+And again after the second //custom, within void AddScripts():
+
+//custom
+AddSC_npc_example();
+
+The reason you need extern void the first time is so that it knows that the function for your interface is defined in another file. Once this is done, you call it within AddScripts() so that your script is added into the scripting system.
+
+How ScriptDev2 is initialized
+================================================== ===
+
+Here is the basic flowchart of how ScriptDev2 starts up and loads your script, to give you a better idea of how it all works:
+
+
+[Mangos loads in the script library]
+|
+[Mangos calls ScriptsInit() on the loaded script library]
+|
+[ScriptDev2's ScriptsInit() loads stuff, and then calls AddScripts() to load the scripts]
+|
+[AddScripts() calls AddSC_npc_example() in your script]
+|
+[AddSC_npc_example() creates a new Script in the scripting system]
+|
+[The new Script is named and has it's necessary functions defined as whatever functions you created, and then calls RegisterSelf()]
+|
+[RegisterSelf() finishes the process of loading your script, making it accessible via it's ScriptName]
+
+
+So, now that we have put our script into the mix, all that is left is to compile it.
+
+Adding the script to the compile job - LINUX/MAC/BSD/OTHER *NIX ONLY
+================================================== ===
+
+Alright, to get your script to compile on *nix with make, you simple need to add the script's path into the Makefile.am. For example, say the custom script is saved under scripts/custom/npc_example.cpp, then you would add:
+
+scripts/custom/npc_example.cpp \
+
+to Makefile.am. Once you save it, rerun autoreconf and configure and then make.
+
+Adding the script to the compile job - WINDOWS ONLY
+================================================== ===
+
+To get your script to compile on Windows with VC++, you need to add the file to the script project. Open up the script project, then look over at the Solution Explorer (if it's not already open, you can open it with Ctrl-Alt-L or View->Solution Explorer)
+
+Open up the scripts folder, and then drag the script file (npc_example.cpp, or whatever you named it) into the custom folder in the Solution Explorer. The file should now be in the custom folder, and added to the project. Press F7 or go to Build->Build Solution to compile it.
+
+
+==============================================================================================================================================================
+
+SD2 Function ( this might not be all Of them )
+
+Functions for Scriptdev2 3.3.3 Revesion.
+
+How to use it, 
+
+Open up your Script and do one of the following :
+
+m_creature->Function(info);
+pCreature->Function(info);
+pGo->Function(info); 
+pItem->Function(info);
+pPlayer->Function(info);
+
+maybe incorrect , depends on your Bool
+example
+if you have 
+bool GossipHello_npc_name(Player* pPlayer, Creature* pCreature)[/CODE]
+
+then use 
+
+pPlayer for Player
+pCreature for Creature
+
+if you have
+bool GossipHello_npc_name(Player *player, Creature *_Creature)[/CODE]
+
+then use 
+
+player for Player
+_Creature for Creature
+
+see any resemblance ?
+
+i created this to help me script as fast as possible
+
+acceptTrade
+ActivateTaxiPathTo
+addActionButton
+AddArmorProficiency
+AddAura
+AddBattleGroundQueueId
+AddComboPointHolder
+AddComboPoints
+AddDynObject
+AddEnchantmentDuration
+AddEnchantmentDurations
+addFollower
+AddGameObject
+AddGuardian
+addHatedBy
+AddItemDurations
+AddItemToBuyBackSlot
+AddMail
+AddMItem
+AddNewMailDeliverTime
+AddObjectToRemoveList
+AddPetAura
+AddQuest
+AddRunePower
+addSpell
+AddSpellAndCategoryCooldowns
+AddSpellCooldown
+AddSpellMod
+AddThreat
+AddTimedQuest
+AddToClientUpdateList
+AddToWorld
+addUnitState
+AddWeaponProficiency
+ApplyAttackTimePercentMod
+ApplyAuraProcTriggerDamage
+ApplyCastTimePercentMod
+ApplyDiminishingAura
+ApplyDiminishingToDuration
+ApplyEnchantment
+ApplyEquipCooldown
+ApplyEquipSpell
+ApplyFeralAPBonus
+ApplyGlyph
+ApplyGlyphs
+ApplyItemEquipSpell
+ApplyManaRegenBonus
+ApplyMaxPowerMod
+ApplyPowerMod
+ApplyRatingMod
+ApplyResistanceBuffModsMod
+ApplyResistanceBuffModsPercentMod
+ApplySpellDispelImmunity
+ApplySpellImmune
+ApplySpellMod
+ApplySpellPowerBonus
+ApplyStatBuffMod
+ApplyStatPercentBuffMod
+ApplyTotalThreatModifier
+AreaExploredOrEventHappens
+Attack
+AttackerStateUpdate
+AttackStop
+AutoStoreLoot
+AutoUnequipOffhandIfNeed
+BankItem
+BindToInstance
+BuyItemFromVendor
+CalcAbsorbResist
+CalcArmorReducedDamage
+CalcNotIgnoreAbsorbDamage
+CalcNotIgnoreDamageRedunction
+CalcRage
+CalculateDamage
+CalculateLevelPenalty
+CalculateMeleeDamage
+CalculateMinMaxDamage
+CalculateReputationGain
+CalculateSpellDamage
+CalculateSpellDuration
+CalculateTalentsPoints
+CanAddQuest
+CanBankItem
+CanBlock
+CanCaptureTowerPoint
+CanCompleteQuest
+CanCompleteRepeatableQuest
+canDetectInvisibilityOf
+CanDualWield
+CanEquipItem
+CanEquipNewItem
+CanEquipUniqueItem
+CanFly
+CanFreeMove
+CanHaveThreatList
+CanJoinToBattleground
+CanModifyStats
+CanNoReagentCast
+CanParry
+canReachWithAttack
+CanRewardQuest
+canSeeSpellClickOn
+CanSeeStartQuest
+CanShareQuest
+CanSpeak
+CanStoreItem
+CanStoreItems
+CanStoreNewItem
+CanTakeMoreSimilarItems
+CanTakeQuest
+CanTameExoticPets
+CanTitanGrip
+CanUnequipItem
+CanUnequipItems
+CanUninviteFromGroup
+CanUseAmmo
+CanUseBattleGroundObject
+CanUseItem
+CastCustomSpell
+CastedCreatureOrGO
+CastItemCombatSpell
+CastItemUseSpell
+CastSpell
+CastStop
+ChangeSpeakTime
+CharmSpellInitialize
+CheckAllControlledUnits
+CheckAmmoCompatibility
+CheckAndIncreaseCastCounter
+CheckDuelDistance
+CheckExploreSystem
+CleanupChannels
+CleanupDeletedAuras
+CleanupsBeforeDelete
+ClearAfkReports
+ClearAllReactives
+ClearComboPointHolders
+ClearComboPointHolders
+ClearComboPoints
+ClearDiminishings
+ClearInCombat
+clearResurrectRequestData
+ClearTrade
+clearUnitState
+ClearUpdateMask
+CombatStop
+CombatStopWithPets
+CompleteQuest
+ContinueTaxiFlight
+Create
+CreateCorpse
+CreateTamedPetFrom
+Customize
+DealDamage
+DealDamageMods
+DealHeal
+DealMeleeDamage
+DealSpellDamage
+DecreaseCastCounter
+DelayAura
+DeleteEquipmentSet
+DeleteFromDB
+DeleteThreatList
+DeMorph
+DestroyConjuredItems
+DestroyForPlayer
+DestroyItem
+DestroyItemCount
+DestroyZoneLimitedItem
+dndMsg
+duel
+DuelComplete
+DurabilityLoss
+DurabilityLossAll
+DurabilityPointLossForEquipSlot
+DurabilityPointsLoss
+DurabilityRepair
+DurabilityRepairAll
+EnchantmentFitsRequirements
+EnergizeBySpell
+EnterVehicle
+EnvironmentalDamage
+EquipItem
+EquipNewItem
+ExitVehicle
+FailQuest
+FindCurrentSpellBySpellId
+FindEquipSlot
+FindGuardianWithEntry
+FindQuestSlot
+FinishSpell
+GetAchievementMgr
+GetActionButton
+GetActiveSpec
+GetAmmoDPS
+GetAngle
+GetAPMultiplier
+GetAreaId
+GetArenaPersonalRating
+GetArenaPoints
+GetArenaTeamId
+GetArenaTeamIdFromDB
+GetArenaTeamIdInvited
+GetArmor
+GetArmorPenetrationPct
+GetArmorProficiency
+GetAttackBySlot
+getAttackerForHelper
+getAttackers
+GetAttackTime
+getAttackTimer
+GetAura
+GetAuras
+GetAurasByType
+GetAuraUpdateMask
+GetBankBagSlotCount
+GetBarberShopCost
+GetBaseDefenseSkillValue
+GetBaseMap
+GetBaseModValue
+GetBaseRune
+GetBaseSkillValue
+GetBaseSpellPowerBonus
+GetBaseWeaponSkillValue
+GetBattleGround
+GetBattleGroundEntryPoint
+GetBattleGroundId
+GetBattleGroundQueueIndex
+GetBattleGroundQueueTypeId
+GetBattleGroundTypeId
+GetBGAccessByLevel
+GetBGTeam
+GetBoundInstance
+GetBoundInstances
+GetByteValue
+GetCastingTimeForBonus
+GetChannelObjectGUID
+GetCharm
+GetCharmer
+GetCharmerGUID
+GetCharmerOrOwner
+GetCharmerOrOwnerOrOwnGUID
+GetCharmerOrOwnerOrSelf
+GetCharmerOrOwnerPlayerOrPlayerItself
+GetCharmGUID
+GetCharmInfo
+getCinematic
+getClass
+getClassMask
+GetClosePoint
+GetCombatDistance
+GetCombatRatingDamageReduction
+GetCombatRatingReduction
+GetCombatTimer
+GetComboPoints
+GetComboTarget
+GetContactPoint
+GetCorpse
+GetCorpseReclaimDelay
+GetCreateHealth
+GetCreateMana
+GetCreatePowers
+GetCreateStat
+GetCreatorGUID
+GetCreatureType
+GetCreatureTypeMask
+GetCurrentRune
+GetCurrentSpell
+getDeathState
+GetDeathTimer
+GetDeclinedNames
+GetDefaultGossipMenuForSource
+GetDefenseSkillValue
+GetDifficulty
+GetDiminishing
+GetDisplayId
+GetDistance
+GetDistance2d
+GetDistanceOrder
+GetDistanceZ
+GetDivider
+GetDodgeFromAgility
+GetDrunkenstateByValue
+GetDrunkValue
+GetDummyAura
+GetDungeonDifficulty
+GetDynObject
+GetEntry
+GetExpertiseDodgeOrParryReduction
+getFaction
+getFactionForRace
+getFactionTemplateEntry
+GetFarSight
+GetFloatValue
+GetFloatValueFromArray
+GetFloatValueFromDB
+GetFreePrimaryProfessionPoints
+GetFreeTalentPoints
+GetGameObject
+GetGameObjectIfCanInteractWith
+getGender
+GetGlyph
+GetGlyphSlot
+GetGossipTextId
+GetGridRef
+GetGroup
+GetGroupInvite
+GetGroupRef
+GetGroupUpdateFlag
+GetGUID
+GetGUIDLow
+GetGuildId
+GetGuildIdFromDB
+GetGuildIdInvited
+GetHealth
+GetHealthBonusFromStamina
+GetHealthPercent
+GetHonorPoints
+getHostileRefManager
+GetInGameTime
+GetInstanceData
+GetInstanceId
+GetInt32Value
+GetItemByEntry
+GetItemByGuid
+GetItemByLimitedCategory
+GetItemByPos
+GetItemCount
+GetItemCountWithLimitCategory
+GetItemFromBuyBackSlot
+GetItemPosByTradeSlot
+getLevel
+getLevelForTarget
+GetLevelFromDB
+GetLevelPlayedTime
+GetLootGUID
+GetMail
+GetMailBegin
+GetMailEnd
+GetMailSize
+GetManaBonusFromIntellect
+GetMap
+GetMapId
+GetMapRef
+GetMapRef
+GetMaxHealth
+GetMaxKeyringSize
+GetMaxNegativeAuraModifier
+GetMaxNegativeAuraModifierByMiscMask
+GetMaxNegativeAuraModifierByMiscValue
+GetMaxPersonalArenaRatingRequirement
+GetMaxPositiveAuraModifier
+GetMaxPositiveAuraModifierByMiscMask
+GetMaxPositiveAuraModifierByMiscValue
+GetMaxPower
+GetMaxSkillValue
+GetMaxSkillValueForLevel
+getMaxTimer
+GetMeleeCritChanceReduction
+GetMeleeCritDamageReduction
+GetMeleeCritFromAgility
+GetMeleeDamageReduction
+GetMeleeDamageSchoolMask
+GetMiniPet
+GetMItem
+GetModifierValue
+GetMoney
+GetMotionMaster
+GetMountID
+GetName
+GetNameForLocaleIdx
+GetNativeDisplayId
+GetNearPoint
+GetNearPoint2D
+GetNegStat
+GetNextQuest
+GetNextRandomRaidMember
+GetNPCIfCanInteractWith
+GetObjectByTypeMask
+GetObjectGuid
+GetObjectSize
+GetOrientation
+GetOriginalGroup
+GetOriginalGroupRef
+GetOriginalSubGroup
+GetOwner
+GetOwnerGUID
+GetPackGUID
+GetPet
+GetPetGUID
+GetPhaseMask
+GetPhaseMaskForSpawn
+GetPosition
+GetPositionX
+GetPositionY
+GetPositionZ
+GetPosStat
+GetPower
+getPowerType
+GetPowerTypeByAuraGroup
+GetPPMProcChance
+GetPureMaxSkillValue
+GetPureSkillValue
+GetQuestLevelForPlayer
+GetQuestRewardStatus
+GetQuestSlotCounter
+GetQuestSlotQuestId
+GetQuestSlotState
+GetQuestSlotQuestId
+GetQuestSlotState
+GetQuestSlotTime
+GetQuestStatus
+getQuestStatusMap
+getRace
+getRaceMask
+GetRaidDifficulty
+GetRandomPoint
+GetRangedCritChanceReduction
+GetRangedCritDamageReduction
+GetRangedDamageReduction
+GetRank
+GetRankFromDB
+GetRatingBonusValue
+GetRatingCoefficient
+GetRatingCoefficient
+GetRegenTimer
+GetReputationMgr
+GetReputationPriceDiscount
+GetReputationRank
+GetReqKillOrCastCurrentCount
+GetResistance
+GetResistanceBuffMods
+GetRestBonus
+GetRestTime
+GetRestType
+GetResurrectionSpellId
+GetRuneCooldown
+GetRunesState
+GetSaveTimer
+GetSelection
+GetSession
+GetSheath
+GetShield
+GetShieldBlockValue
+GetSingleCastAuras
+GetSkillPermBonusValue
+GetSkillTempBonusValue
+GetSkillValue
+GetSocial
+GetSpecsCount
+GetSpeed
+GetSpeedRate
+GetSpellByProto
+GetSpellCooldownDelay
+GetSpellCooldownMap
+GetSpellCritChanceReduction
+GetSpellCritDamageReduction
+GetSpellCritFromIntellect
+GetSpellDamageReduction
+GetSpellMap
+GetSpellModOwner
+GetSpellSchoolByAuraGroup
+getStandState
+GetStat
+GetStatByAuraGroup
+GetSubGroup
+GetTargetGUID
+GetTeam
+GetTeleportDest
+GetTemporaryUnsummonedPetNumber
+getThreatManager
+GetTimeInnEnter
+GetTotalAttackPowerValue
+GetTotalAuraModifier
+GetTotalAuraModifierByMiscMask
+GetTotalAuraModifierByMiscValue
+GetTotalAuraModValue
+GetTotalAuraMultiplier
+GetTotalAuraMultiplierByMiscMask
+GetTotalAuraMultiplierByMiscValue
+GetTotalAuraMultiplierByMiscValueForMask
+GetTotalBaseModValue
+GetTotalPercentageModValue
+GetTotalPlayedTime
+GetTotalStatValue
+GetTotem
+GetTotemGUID
+GetTrader
+GetTrainerSpellState
+getTransForm
+GetTransOffsetO
+GetTransOffsetX
+GetTransOffsetY
+GetTransOffsetZ
+GetTransport
+GetTransport
+GetTransSeat
+GetTransTime
+GetTypeId
+GetUInt16Value
+GetUInt32Value
+GetUInt32ValueFromArray
+GetUInt32ValueFromDB
+GetUInt64Value
+GetUnit
+GetUnitBlockChance
+GetUnitCriticalChance
+GetUnitDodgeChance
+GetUnitMeleeSkill
+GetUnitParryChance
+GetValuesCount
+getVictim
+GetViewPoint
+GetVisibility
+GetVisibleAura
+GetVisibleAuras
+GetVisibleAurasCount
+GetWeaponDamageRange
+GetWeaponForAttack
+GetWeaponProcChance
+GetWeaponProficiency
+GetWeaponSkillValue
+GetXPRestBonus
+GetZoneAndAreaId
+GetZoneId
+GetZoneIdFromDB
+GiveLevel
+GiveQuestSourceItem
+GiveXP
+GroupEventHappens
+HandleBaseModValue
+HandleDrowning
+HandleDummyAuraProc
+HandleDummyAuraProc
+HandleEmoteCommand
+HandleFall
+HandleHasteAuraProc
+HandleMendingAuraProc
+HandleOverrideClassScriptAuraProc
+HandleProcTriggerSpell
+HandleSobering
+HandleSpellCritChanceAuraProc
+HandleStatModifier
+HandleStealthedUnitsDetection
+HasActiveSpell
+HasAtLoginFlag
+HasAura
+HasAuraState
+HasAuraStateForCaster
+HasAuraType
+HasByteFlag
+HasFlag
+HasFlag64
+HasFreeBattleGroundQueueId
+HasInArc
+HasInvisibilityAura
+hasInvolvedQuest
+HasItemCount
+HasItemFitToSpellReqirements
+HasItemOrGemWithIdEquipped
+HasItemOrGemWithLimitCategoryEquipped
+HasItemTotemCategory
+HasMovementFlag
+hasNegativeAuraWithInterruptFlag
+hasQuest
+HasQuestForGO
+HasQuestForItem
+HasSkill
+HasSpell
+HasSpellCooldown
+HasStealthAura
+HasTitle
+hasUnitState
+HaveAtClient
+haveOffhandWeapon
+i_motionMaster
+InArena
+InBattleGround
+InBattleGroundQueue
+InBattleGroundQueueForBattleGroundQueueType
+IncompleteQuest
+IncrDiminishing
+infinityCooldownDelay
+infinityCooldownDelayCheck
+InitDataForForm
+InitCharmInfo
+InitDisplayIds
+InitGlyphsForLevel
+InitPrimaryProfessions
+InitRunes
+InitStatBuffMods
+InitStatsForLevel
+InitTalentForLevel
+InitTaxiNodesForLevel
+InitValues
+InitVisibleBits
+inn_trigger_id
+InSamePhase
+InterruptNonMeleeSpells
+InterruptSpell
+isAcceptTickets
+isAcceptWhispers
+IsActionButtonDataValid
+IsActionButtonDataValid
+isActiveObject
+IsActiveQuest
+IsAffectedBySpellmod
+isAFK
+isAlive
+isAllowedToLoot
+IsAllTotemSlotsUsed
+isArmorer
+IsAtGroupRewardDistance
+isAttackingPlayer
+isAttackReady
+isAttackReady
+isAuctioner
+IsBagPos
+isBanker
+IsBankPos
+IsBaseRuneSlotsOnCooldown
+isBattleMaster
+IsBeingTeleported
+IsBeingTeleportedFar
+IsBeingTeleportedNear
+IsCanDelayTeleport
+isCharmed
+isCharmedOwnedByPlayerOrPlayer
+IsCharmerOrOwnerPlayerOrPlayerItself
+IsContestedGuard
+IsContestedGuard
+IsControlledByPlayer
+IsDamageToThreatSpell
+isDead
+isDND
+IsEquipmentPos
+isFeared
+IsFFAPvP
+IsFlying
+IsFriendlyTo
+isFrozen
+isGameMaster
+isGMChat
+isGMVisible
+isGossip
+IsGroupVisibleFor
+isGuard
+isGuildMaster
+IsHasDelayedTeleport
+isHonorOrXPTarget
+IsHostileTo
+IsHostileToPlayers
+isHover
+IsImmunedToDamage
+IsImmunedToSpell
+IsImmunedToSpellEffect
+isInAccessablePlaceFor
+isInBack
+isInBackInMap
+isInCombat
+IsInFeralForm
+isInFlight
+isInFront
+isInFrontInMap
+IsInMap
+isInnkeeper
+IsInRange
+IsInRange2d
+IsInRange3d
+isInRoots
+IsInSameGroupWith
+IsInSameRaidWith
+IsInventoryPos
+isInvisibleForAlive
+IsInvitedForBattleGroundInstance
+IsInvitedForBattleGroundQueueType
+IsInWater
+IsInWorld
+IsKnowHowFlyIn
+IsMounted
+isMoving
+isMovingOrTurning
+IsNeedCastPassiveSpellAtLearn
+IsNeutralToAll
+IsNonMeleeSpellCasted
+isPassiveToHostile
+IsPetNeedBeTemporaryUnsummoned
+IsPolymorphed
+IsPositionValid
+IsPvP
+isQuestGiver
+isRessurectRequested
+isRessurectRequestedBy
+isRested
+isServiceProvider
+IsSitState
+isSpellBlocked
+isSpellCrit
+IsSpellFitByClassAndRace
+isSpiritGuide
+isSpiritHealer
+isSpiritService
+IsStandState
+IsStopped
+isTabardDesigner
+isTargetableForAttack
+isTaxi
+isTaxiCheater
+isTotalImmune
+isTrainer
+IsTriggeredAtSpellProcEvent
+IsTwoHandUsed
+isType
+IsUnderLastManaUseEffect
+IsUnderWater
+IsUseEquipedWeapon
+IsValidPos
+isVendor
+isVisibleFor
+isVisibleForInState
+isVisibleForOrDetect
+IsVisibleGloballyFor
+IsVisibleInGridForPlayer
+IsWithinDist
+IsWithinDist2d
+IsWithinDist3d
+IsWithinDistInMap
+IsWithinLOS
+IsWithinLOSInMap
+ItemAddedQuestCheck
+ItemRemovedQuestCheck
+JoinedChannel
+KilledMonster
+KilledMonsterCredit
+KillPlayer
+KnockBackFrom
+learnDefaultSpells
+LearnPetTalent
+learnQuestRewardedSpells
+learnSkillRewardedSpells
+learnSpell
+learnSpellHighRank
+LearnTalent
+LeaveAllArenaTeams
+LeaveBattleground
+LeaveLFGChannel
+LeftChannel
+LoadCorpse
+LoadFromDB
+LoadPet
+LoadPositionFromDB
+LoadValues
+LoadValuesArrayFromDB
+m_achievementMgr
+m_actionButtons
+m_activeSpec
+m_addDmgOnce
+m_ammoDPS
+m_areaUpdateId
+m_ArenaTeamIdInvited
+m_armorPenetrationPct
+m_ArmorProficiency
+m_atLoginFlags
+m_attackers
+m_attacking
+m_attackTimer
+m_auraBaseMod
+m_AuraFlags
+m_auraModifiersGroup
+m_Auras
+m_AurasUpdateIterator
+m_auraUpdateMask
+m_baseFeralAP
+m_baseManaRegen
+m_baseManaRegen
+m_baseRatingValue
+m_baseSpellCritChance
+m_baseSpellPower
+m_bCanDelayTeleport
+m_bgBattleGroundQueueID
+m_bgData
+m_bHasDelayedTeleport
+m_boundInstances
+m_canBlock
+m_canDualWield
+m_canModifyStats
+m_canParry
+m_canTitanGrip
+m_castCounter
+m_channels
+m_charmInfo
+m_cinematic
+m_clientGUIDs
+m_CombatTimer
+m_ComboPointHolders
+m_comboTarget
+m_contestedPvPTimer
+m_createStats
+m_currentBuybackSlot
+m_currentSpells
+m_currMap
+m_curSelection
+m_DailyQuestChanged
+m_deathExpireTime
+m_deathState
+m_deathTimer
+m_declinedname
+m_DelayedOperations
+m_deletedAuras
+m_detectInvisibilityMask
+m_DetectInvTimer
+m_Diminishing
+m_divider
+m_drunk
+m_drunkTimer
+m_dungeonDifficulty
+m_dynObjGUIDs
+m_enchantDuration
+m_EquipmentSets
+m_Events
+m_extraAttacks
+m_ExtraFlags
+m_floatValues
+m_FollowingRefManager
+m_forced_speed_changes
+m_form
+m_gameObj
+m_glyphs
+m_gridRef
+m_group
+m_groupInvite
+m_groupUpdateMask
+m_guardianPets
+m_GuildIdInvited
+m_homebindAreaId
+m_homebindMapId
+m_HomebindTimer
+m_homebindX
+m_homebindY
+m_homebindZ
+m_HostileRefManager
+m_ingametime
+m_InstanceId
+m_InstanceValid
+m_int32Values
+m_invisibilityMask
+m_inWorld
+m_isInWater
+m_isSorted
+m_itemDuration
+m_items
+m_itemUpdateQueue
+m_itemUpdateQueueBlocked
+m_Last_tick
+m_lastDailyQuestTime
+m_lastFallTime
+m_lastFallZ
+m_lastHonorUpdateTime
+m_lastManaUseTimer
+m_lastPotionId
+m_lastPotionId
+m_logintime
+m_lookingForGroup
+m_lootGuid
+m_mail
+m_mailsUpdated
+m_mapId
+m_mapRef
+m_miniPet
+m_MirrorTimer
+m_MirrorTimerFlags
+m_MirrorTimerFlagsLast
+m_modAttackSpeedPct
+m_modAuras
+m_modMeleeHitChance
+m_modRangedHitChance
+m_modSpellHitChance
+m_movementInfo
+m_mover
+m_name
+m_nextMailDelivereTime
+m_nextSave
+m_ObjectSlot
+m_objectType
+m_objectTypeId
+m_objectUpdated
+m_oldpetspell
+m_orientation
+m_originalGroup
+m_PackGUID
+m_petAuras
+m_phaseMask
+m_Played_time
+m_positionX
+m_positionY
+m_positionZ
+m_questRewardTalentCount
+m_raidDifficulty
+m_reactiveTimer
+m_recallMap
+m_recallO
+m_recallX
+m_recallY
+m_recallZ
+m_regenTimer
+m_reputationMgr
+m_resetTalentsCost
+m_resetTalentsTime
+m_rest_bonus
+m_restTime
+m_resurrectGUID
+m_resurrectHealth
+m_resurrectMana
+m_resurrectMap
+m_resurrectX
+m_resurrectY
+m_resurrectZ
+m_runes
+m_scAuras
+m_session
+m_ShapeShiftFormSpellId
+m_social
+m_speakCount
+m_speakTime
+m_specsCount
+m_speed_rate
+m_spellCooldowns
+m_spellImmune
+m_SpellModRemoveCount
+m_spellMods
+m_spells
+m_stableSlots
+m_state
+m_summon_expire
+m_summon_mapid
+m_summon_x
+m_summon_y
+m_summon_z
+m_swingErrorMsg
+m_talents
+m_taxi
+m_team
+m_teleport_dest
+m_teleport_options
+m_temporaryUnsummonedPetNumber
+m_ThreatManager
+m_timedquests
+m_TotemSlot
+m_transform
+m_transport
+m_uint32Values
+m_uint32Values_mirror
+m_updateFlag
+m_usedTalentCount
+m_valuesCount
+m_Visibility
+m_visibleAuras
+m_weaponChangeTimer
+m_weaponDamage
+m_WeaponProficiency
+m_zoneUpdateId
+m_zoneUpdateTimer
+MagicSpellHitResult
+MeleeDamageBonus
+MeleeMissChanceCalc
+MeleeSpellHitResult
+MeleeSpellMissChance
+mMitems
+ModifyArenaPoints
+ModifyAuraState
+ModifyHealth
+ModifyHonorPoints
+ModifyMoney
+ModifyPower
+ModifySkillBonus
+MoneyChanged
+MonsterMove
+MonsterMoveWithSpeed
+MonsterSay
+MonsterTextEmote
+MonsterWhisper
+MonsterYell
+MonsterYellToZone
+Mount
+MoveItemFromInventory
+MoveItemToInventory
+MoveOutOfRange
+mQuestStatus
+mSemaphoreTeleport_Far
+mSemaphoreTeleport_Near
+mSkillStatus
+NearTeleportTo
+OCTRegenHPPerSpirit
+OCTRegenMPPerSpirit
+OnGossipSelect
+operator =
+outDebugValues
+PetSpellInitialize
+PlayDirectSound
+PlayDistanceSound
+PlayerTalkClass
+PossessSpellInitialize
+PrepareGossipMenu
+PrepareQuestMenu
+PrintIndexError
+ProcDamageAndSpell
+ProcDamageAndSpellFor
+ProcessDelayedOperations
+ProhibitSpellSchool
+propagateSpeedChange
+pTrader
+pvpInfo
+QuickEquipItem
+Regenerate
+RegenerateAll
+RegenerateHealth
+Relocate
+RelocateToHomebind
+removeActionButton
+RemoveAllAttackers
+RemoveAllAuras
+RemoveAllAurasOnDeath
+RemoveAllDynObjects
+RemoveAllEnchantments
+RemoveAllGameObjects
+RemoveAllSpellCooldown
+RemoveAmmo
+RemoveArenaAuras
+RemoveArenaSpellCooldowns
+RemoveAtLoginFlag
+RemoveAura
+RemoveAurasAtMechanicImmunity
+RemoveAurasByCasterSpell
+RemoveAurasDueToItemSpell
+RemoveAurasDueToSpell
+RemoveAurasDueToSpellByCancel
+RemoveAurasDueToSpellBySteal
+RemoveAurasWithDispelType
+RemoveAurasWithInterruptFlags
+RemoveBattleGroundQueueId
+RemoveByteFlag
+RemoveComboPointHolder
+RemovedInsignia
+RemoveDynObject
+RemoveDynObjectWithGUID
+RemoveEnchantmentDurations
+RemoveFlag
+RemoveFlag64
+removeFollower
+RemoveFromBattleGroundRaid
+RemoveFromClientUpdateList
+RemoveFromGroup
+RemoveFromWorld
+RemoveGameObject
+RemoveGuardian
+RemoveGuardians
+removeHatedBy
+RemoveItem
+RemoveItemDependentAurasAndCasts
+RemoveItemDurations
+RemoveItemFromBuyBackSlot
+RemoveMail
+RemoveMiniPet
+RemoveMItem
+RemoveNoStackAurasDueToAura
+RemoveNotOwnSingleTargetAuras
+RemovePet
+RemovePetActionBar
+RemovePetAura
+RemovePetitionsAndSigns
+RemoveQuestSlotState
+RemoveRankAurasDueToSpell
+RemoveSingleAuraByCasterSpell
+RemoveSingleAuraDueToSpellByDispel
+RemoveSingleAuraFromStack
+RemoveSingleSpellAurasByCasterSpell
+RemoveSingleSpellAurasFromStack
+removeSpell
+RemoveSpellbyDamageTaken
+RemoveSpellCategoryCooldown
+RemoveSpellCooldown
+RemoveSpellMods
+RemoveSpellsCausingAura
+RemoveStandFlags
+RemoveTimedQuest
+RepopAtGraveyard
+ReportedAfkBy
+ReputationChanged
+resetAttackTimer
+ResetContestedPvP
+ResetDailyQuestStatus
+ResetInstances
+ResetMap
+resetSpells
+resetTalents
+resetTalentsCost
+rest_type
+ResummonPetTemporaryUnSummonedIfAny
+ResurectUsingRequestData
+ResurrectPlayer
+ResyncRunes
+RewardHonor
+RewardPlayerAndGroupAtEvent
+RewardPlayerAndGroupAtKill
+RewardQuest
+RewardRage
+RewardReputation
+RollMeleeOutcomeAgainst
+SatisfyQuestDay
+SatisfyQuestExclusiveGroup
+SatisfyQuestLevel
+SatisfyQuestLog
+SatisfyQuestNextChain
+SatisfyQuestPrevChain
+SatisfyQuestPreviousQuest
+SatisfyQuestRace
+SatisfyQuestReputation
+SatisfyQuestSkillOrClass
+SatisfyQuestStatus
+SatisfyQuestTimed
+SaveGoldToDB
+SaveInventoryAndGoldToDB
+SavePositionInDB
+SaveRecallPosition
+SaveRespawnTime
+SaveToDB
+Say
+ScheduleDelayedOperation
+SelectHostileTarget
+SelectMagnetTarget
+SelectRandomFriendlyTarget
+SelectRandomUnfriendlyTarget
+SendAttackStateUpdate
+SendAttackSwingBadFacingAttack
+SendAttackSwingCancelAttack
+SendAttackSwingCantAttack
+SendAttackSwingDeadTarget
+SendAttackSwingNotInRange
+SendAurasForTarget
+SendAutoRepeatCancel
+SendBuyError
+SendCanTakeQuestResponse
+SendCinematicStart
+SendClearCooldown
+SendComboPoints
+SendCooldownEvent
+SendCorpseReclaimDelay
+SendCreateUpdateToPlayer
+SendDirectMessage
+SendDuelCountdown
+SendDungeonDifficulty
+SendEnchantmentDurations
+SendEnergizeSpellLog
+SendEquipError
+SendEquipmentSetList
+SendExplorationExperience
+SendGameObjectCustomAnim
+SendHealSpellLog
+SendHighestThreatUpdate
+SendInitialActionButtons
+SendInitialPacketsAfterAddToMap
+SendInitialPacketsBeforeAddToMap
+SendInitWorldStates
+SendInstanceResetWarning
+SendItemDurations
+SendLogXPGain
+SendLoot
+SendLootRelease
+SendMailResult
+SendMeleeAttackStart
+SendMeleeAttackStop
+SendMessageToSet
+SendMessageToSetInRange
+SendMirrorTimer
+SendMonsterMove
+SendMonsterMoveByPath
+SendMonsterMoveWithSpeed
+SendMovieStart
+SendNewItem
+SendNewMail
+SendNotifyLootItemRemoved
+SendNotifyLootMoneyRemoved
+SendObjectDeSpawnAnim
+SendPeriodicAuraLog
+SendPetActionFeedback
+SendPetAIReaction
+SendPetCastFail
+SendPetGUIDs
+SendPetSkillWipeConfirm
+SendPetTalk
+SendPetTameFailure
+SendPreparedGossip
+SendPreparedQuest
+SendProficiency
+SendPushToPartyResponse
+SendQuestComplete
+SendQuestConfirmAccept
+SendQuestFailed
+SendQuestReward
+SendQuestTimerFailed
+SendQuestUpdateAddCreatureOrGo
+SendQuestUpdateAddItem
+SendRaidDifficulty
+SendRaidInfo
+SendResetFailedNotify
+SendResetInstanceFailed
+SendResetInstanceSuccess
+SendSavedInstances
+SendSellError
+SendSpellMiss
+SendSpellNonMeleeDamageLog
+SendTalentsInfoData
+SendTalentWipeConfirm
+SendThreatClear
+SendThreatRemove
+SendThreatUpdate
+SendTransferAborted
+SendUpdateToOutOfRangeGroupMembers
+SetAcceptTicket
+SetAcceptWhispers
+SetActiveSpec
+SetAmmo
+SetArenaTeamIdInvited
+SetArenaTeamInfoField
+SetArmor
+SetAtLoginFlag
+SetAttackTime
+setAttackTimer
+SetAuraUpdateMask
+SetBankBagSlotCount
+SetBaseModValue
+SetBaseRune
+SetBaseWeaponDamage
+SetBattleGroundEntryPoint
+SetBattleGroundId
+SetBattleGroundRaid
+SetBGTeam
+SetBindPoint
+SetByteFlag
+SetByteValue
+SetCanBlock
+SetCanDelayTeleport
+SetCanDualWield
+SetCanModifyStats
+SetCanParry
+SetCanTitanGrip
+SetChannelObjectGUID
+SetCharm
+SetCharmerGUID
+SetCharmGUID
+setCinematic
+SetClientControl
+SetConfused
+SetContestedPvP
+SetContestedPvPTimer
+SetCreateHealth
+SetCreateMana
+SetCreateStat
+SetCreatorGUID
+SetCreatorGUID
+SetCurrentCastedSpell
+SetCurrentRune
+SetDailyQuestStatus
+setDeathState
+SetDelayedTeleportFlag
+SetDisplayId
+SetDivider
+SetDrunkValue
+SetDungeonDifficulty
+SetEntry
+SetEquipmentSet
+SetFacingTo
+SetFacingToObject
+setFaction
+setFactionForRace
+SetFallInformation
+SetFarSightGUID
+SetFeared
+SetFeignDeath
+SetFFAPvP
+SetFlag
+SetFlag64
+SetFloatValue
+SetFloatValueInArray
+SetFreePrimaryProfessions
+SetFreeTalentPoints
+SetGameMaster
+SetGlyph
+SetGlyphSlot
+SetGMChat
+SetGMVisible
+SetGroup
+SetGroupInvite
+SetGroupUpdateFlag
+SetGuildIdInvited
+SetHealth
+SetHealthPercent
+SetHomebindToLocation
+SetHover
+SetInArenaTeam
+SetInCombatState
+SetInCombatWith
+SetInFront
+SetInGameTime
+SetInGuild
+SetInt16Value
+SetInt32Value
+SetInviteForBattleGroundQueueType
+SetInWater
+SetLastManaUse
+SetLastPotionId
+SetLevel
+SetLocationInstanceId
+SetLocationMapId
+SetLootGUID
+SetMap
+SetMaxHealth
+SetMaxPower
+SetMiniPet
+SetModifierValue
+SetMoney
+SetMovement
+SetMover
+SetNativeDisplayId
+SetName
+SetOrientation
+SetOriginalGroup
+SetPet
+SetPetGUID
+SetPhaseMask
+SetPosition
+SetPower
+setPowerType
+SetPvP
+SetPvPDeath
+SetQuestSlot
+SetQuestSlotCounter
+SetQuestSlotState
+SetQuestSlotTimer
+SetQuestStatus
+SetRaidDifficulty
+SetRank
+setRegenTimer
+SetRegularAttackTime
+SetResistance
+SetResistanceBuffMods
+SetRestBonus
+SetRestTime
+SetRestType
+setResurrectRequestData
+SetRuneCooldown
+SetSaveTimer
+SetSelection
+SetSemaphoreTeleportFar
+SetSemaphoreTeleportNear
+SetSession
+SetSheath
+SetSkill
+SetSpecsCount
+SetSpeedRate
+SetStandFlags
+SetStandState
+SetStat
+SetStatFloatValue
+SetStatInt32Value
+SetSummonPoint
+SetTargetGUID
+SetTaxiCheater
+SetTemporaryUnsummonedPetNumber
+SetTitle
+setTransForm
+SetTransport
+SetUInt16Value
+SetUInt32Value
+SetUInt32ValueInArray
+SetUInt64Value
+SetVirtualItemSlot
+SetVisibility
+SetVisibleAura
+SetVisibleItemSlot
+setWeaponChangeTimer
+SpawnCorpseBones
+SpellBaseDamageBonus
+SpellBaseDamageBonusForVictim
+SpellBaseHealingBonus
+SpellBaseHealingBonusForVictim
+SpellCriticalDamageBonus
+SpellCriticalHealingBonus
+SpellDamageBonus
+spelldamage
+SpellHealingBonus
+SpellHitResult
+SpellNonMeleeDamageLog
+SplitItem
+StartReactiveTimer
+StopAttackFaction
+StopMirrorTimer
+StopMirrorTimers
+StopMoving
+StoreItem
+StoreNewItem
+StoreNewItemInBestSlots
+StoreNewItemInInventorySlot
+SummonCreature
+SummonIfPossible
+SwapItem
+SwapQuestSlot
+TakeQuestSourceItem
+TalkedToCreature
+TauntApply
+TauntFadeOut
+TeamForRace
+TeleportTo
+TeleportToBGEntryPoint
+TeleportToHomebind
+TextEmote
+time_inn_enter
+ToggleAFK
+ToggleDND
+ToggleFlag
+ToggleFlag64
+ToggleMetaGemsActive
+TradeCancel
+tradeGold
+tradeItems
+UnbindInstance
+Uncharm
+UninviteFromGroup
+Unmount
+unReadMails
+UnsummonAllTotems
+UnsummonPetTemporaryIfAny
+Update
+UpdateAchievementCriteria
+UpdateAfkReport
+UpdateAllCritPercentages
+UpdateAllRatings
+UpdateAllSpellCritChances
+UpdateAllStats
+UpdateArea
+UpdateAreaDependentAuras
+UpdateArenaFields
+UpdateArmor
+UpdateArmorPenetration
+UpdateAttackPowerAndDamage
+UpdateAuraForGroup
+UpdateBlockPercentage
+UpdateCombatSkills
+UpdateContestedPvP
+UpdateCorpseReclaimDelay
+UpdateCraftSkill
+UpdateCritPercentage
+UpdateDamagePhysical
+UpdateDefense
+UpdateDefenseBonusesMod
+UpdateDodgePercentage
+UpdateDuelFlag
+UpdateEnchantTime
+UpdateEquipSpellsAtFormChange
+UpdateExpertise
+UpdateFallInformationIfNeed
+UpdateFishingSkill
+UpdateForQuestWorldObjects
+UpdateFreeTalentPoints
+UpdateGatherSkill
+UpdateGroundPositionZ
+UpdateHomebindTime
+UpdateHonorFields
+UpdateInnerTime
+UpdateItemDuration
+UpdateKnownCurrencies
+UpdateLocalChannels
+UpdateManaRegen
+UpdateMaxHealth
+UpdateMaxPower
+UpdateMeleeHitChances
+UpdateMirrorTimers
+UpdateNextMailTimeAndUnreads
+UpdateObjectVisibility
+UpdateParryPercentage
+UpdatePotionCooldown
+UpdatePvP
+UpdatePvPFlag
+UpdateRangedHitChances
+UpdateRating
+UpdateReactives
+UpdateResistances
+UpdateShieldBlockValue
+UpdateSkill
+UpdateSkillPro
+UpdateSkillsForLevel
+UpdateSkillsToMaxSkillsForLevel
+UpdateSpeakTime
+UpdateSpecCount
+UpdateSpeed
+UpdateSpellCritChance
+UpdateSpellDamageAndHealingBonus
+UpdateSpellHitChances
+UpdateStats
+UpdateUnderwaterState
+UpdateVisibilityForPlayer
+UpdateVisibilityOf
+updateVisualBits
+UpdateWalkMode
+UpdateWeaponSkill
+UpdateZone
+UpdateZoneDependentAuras
+VisualizeItem
+Whisper
+Yell
+_addAttacker
+_AddTotem
+_ApplyAllAuraMods
+_ApplyAllItemMods
+_ApplyAllLevelScaleItemMods
+_ApplyAllStatBonuses
+_ApplyAmmoBonuses
+_ApplyItemBonuses
+_ApplyItemMods
+_ApplyWeaponDependentAuraCritMod
+_ApplyWeaponDependentAuraDamageMod
+_ApplyWeaponDependentAuraMods
+_CanStoreItem
+_CanStoreItem_InBag
+_CanStoreItem_InInventorySlots
+_CanStoreItem_InSpecificSlot
+_CanStoreItem_InSpecificSlot
+_CanTakeMoreSimilarItems
+_Create
+_GetTotem
+_InitValues
+_IsWithinDist
+_LoadActions
+_LoadArenaTeamInfo
+_LoadAuras
+_LoadBGData
+_LoadBoundInstances
+_LoadDailyQuestStatus
+_LoadDeclinedNames
+_LoadEquipmentSets
+_LoadFriendList
+_LoadGlyphs
+_LoadGroup
+_LoadHomeBind
+_LoadIntoDataField
+_LoadInventory
+_LoadMailedItems
+_LoadMails
+_LoadQuestStatus
+_LoadSkills
+_LoadSpellCooldowns
+_LoadSpells
+_LoadTalents
+_RemoveAllAuraMods
+_RemoveAllItemMods
+_RemoveAllStatBonuses
+_removeAttacker
+_RemoveTotem
+_SaveActions
+_SaveAuras
+_SaveBGData
+_SaveDailyQuestStatus
+_SaveEquipmentSets
+_SaveGlyphs
+_SaveInventory
+_SaveMail
+_SaveQuestStatus
+_SaveSkills
+_SaveSpellCooldowns
+_SaveSpells
+_SaveTalents
+_SetCreateBits
+_SetUpdateBits
+_StoreItem
+_UpdateAutoRepeatSpell
+_UpdateSpells
+~Player
+
+Tips :
+1-
+i found it very helpful to change the project output to my mangosd.exe
+directory , because everytime you compile a new script you will need to recopy from bin/win32_release to mangosd.exe directory .
+Remember to make sure that mangosd.exe is closed when you recompile.
+This Thread is going to be my main Scriptdev2 Explanation page , i will add everything related to scriptdev2 in posts
+
+====================================================================================================================================================
+
+NoFantasy Sd2 Coding Standards
+
+Why using coding standards
+
+It makes the code easier to read and gives us more control over the code. In some cases it will be a safe guard against errors.
+
+Tab size / Indents
+
+Code never contain tab, instead we use space. By tab size, we mean 4x space. Not 5, not 3. Many tools used in development have options to replace tabs by 4x space.
+Visual Studio: Tools -> Options: Text Editor -> C++ -> Tabs
+Notepad++: Settings -> Preferences -> Edit Components
+
+Comments
+
+Always comment code where it's not typical code repeated in many/all scripts and/or not self-explanatory what the code does.
+
+A comment should either be placed directly above the code:
+
+Code:
+    //my comment
+    if (uiSomething == MY_CONSTANT)or at code line 61 if this fits more natural in the code:
+
+Code:
+    if (uiSomething == MY_CONSTANT)
+    {
+        a = b;                                              //My commentWhitespace
+
+Do not fill source code containing white space in end of line. Generally a no-no.
+Do not fill parenthesis with whitespace. Place space in front, not after.
+Wrong:
+
+Code:
+if( bAttack )Correct:
+
+Code:
+if (bAttack)Brackets
+
+We use symmetric brackets
+
+Code:
+    if (bAttack)
+    {
+        m_creature->DoA();
+        m_creature->DoB();
+    }
+    else
+    {
+        m_creature->SelectA();
+        m_creature->SelectB();
+    }Code:
+    if (bAttack)
+    {
+        m_creature->DoA();
+        m_creature->DoB();
+    }
+    else
+        m_creature->SelectA();Magic numbers vs. Constants
+
+Constants makes code easier to read and does also provide a degree of fail safe.
+Wrong:
+
+Code:
+    if (pPlayer->GetQuestStatus(10090) == 1)
+        m_creature->RemoveFlag(58, 2)Correct:
+
+Code:
+    if (pPlayer->GetQuestStatus(QUEST_BEAT_UP) == QUEST_STATUS_INCOMPLETE);
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);Constants are either set as #define, or most preferred in a enum. If it does not exist, make one.
+
+Enumeration vs. define
+
+For the most, variables should be in enum.
+
+Code:
+enum
+{
+    SPELL_1 = 1234,
+    SPELL_2 = 4321,
+    QUEST_A = 1000
+};There are a few conditions where #define should/can be used, such as a text string and other special.
+
+Code:
+#define GOSSIP_ITEM_1 "Hello"Some enumeration prefixes we use:
+
+Code:
+    SPELL_        //spell id
+    NPC_        //creature_template.entry
+    ITEM_        //item_template.entry
+    GO_            //gameobject_template.entry
+    QUEST_        //quest_template.entry
+    SAY_        //script_texts.entry (yell/normal say)
+    EMOTE_        //same as above, just different prefix to clearly see it's emote
+    EQUIP_        //typically a item id(id from dbc, not _template)
+    MODEL_        //a creature model
+
+    TYPE_        //event/encounter identifiers for instance
+    DATA_        //identifiers in instance used for guid's/data not being event/encounterMore can be read about this in:
+http://www.scriptdev2.com/suggestion-conversion-define-t3930.html
+
+Naming of variables and functions
+
+Function name should tell what the function does.
+
+Code:
+    void IsPrepared();
+    bool DoPlay();This is confusing, functions does not say much, nor do they make any real sense.
+
+Code:
+    void DoPrepareForPhase();
+    bool CanPlay();Is meaningful, it will be easy to read, and indicate what the function does without looking at the content of the function.
+
+
+Code:
+    if (MyVariable)does not say anything about what it is. Are we dealing with a pointer, a boolean or a unsigned integer? There are no way to tell by looking at it, we would need to find where it was declared to find out.
+With a better naming, we will know more.
+
+Code:
+    if (pMyVariable)
+    if (bMyVariable)Prefix variables to indicate what they are will make code a lot more clean and will instantly tell us what we are dealing with. Some of the most common:
+
+Code:
+    pPointer                                                //Creature* pCreature
+    bBoolean                                                //bool bIsWorking
+    uiUnsignedInteger                                        //uint32 uiPhaseShort example of code, how to place and name the different
+
+Code:
+struct MANGOS_DLL_DECL boss_somethingAI : public ScriptedAI
+{
+    boss_somethingAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_uiNormalFaction = pCreature->getFaction();
+        Reset();
+    }
+
+    uint32 m_uiNormalFaction;
+    uint64 m_uiBossGUID;
+    uint32 m_uiSleepTimer;
+    bool m_bIsSleeping;
+
+...
+
+    void UpdateMyFaction()
+    {
+        if (m_bIsSleeping)
+            return;
+
+        //local variable
+        uiMyFaction = m_creature->getFaction();
+
+        //local function variable vs. variable declared in struct
+        if (uiMyFaction != m_uiNormalFaction)
+            m_creature->setFaction(uiMyFaction);
+
+    }
+	
+=================================================================================================
+
+	This is just to build off of FallenAngel's ummm...post. He said he wanted an idiot proof tutorial. Unfortunately, ScriptDev2 is not for idiots. :p
+
+Prologue
+Before we begin I just need to point out a few things that you will need to know about scripting in C++ and ScriptDev2. 
+•Comments can be declared by using two forward slashes (/).
+•All declarations, functions and anything else you make must be closed off with a semicolon(;).
+•Changes to the code will be shown in Italics.
+•I am also new to ScriptDev2, so these are just the very basics of creature scripting.
+•Please inform me of any mistakes you find, so that I may correct them.
+
+Script Start
+The first thing you need to do is declare what should be included when this script is compiled and ran through scriptdev2. Here is an example of what it may look like.
+
+
+Code:
+#include "precompiled.h"
+#include "instance_instance_name.h"Now, .h files are header files, and are used to declare encounters and whatnot. Precompiled.h must ALWAYS be in the script, otherwise the script won't be able to compile. The instance_instance_name.h file is for boss fights only. The file can be any name you want it to be, but it is what declares the encounter of the boss. In order for the script to actually work, this file MUST be included.
+
+Declaring Variables
+Like with any programming language, you can define variables and give them data so that instead of typing the same data over and over again, you can just attach the variable's ID. This also helps when making changes to the spells or texts, as it keeps everything organized.
+
+
+Code:
+#include "precompiled.h"
+#include "instance_instance_name.h"
+
+enum
+{
+	//Yells
+	NPC_AGGRO                = -204450; //Database ID's for text
+	NPC_DEATH                = -204451;
+	NPC_SLAY                 = -204452;
+	NPC_SAY_SPELL1           = -204453;
+	NPC_SAY_SPELL2           = -204454;
+	NPC_SAY_BESERK           = -204455;
+
+	//Spells
+	SPELL_1                  = 48923; //Spell IDs
+	SPELL_2                  = 58934;
+	BERSERK                  = 28399;
+
+	//Mobs
+	MOB1                     = 39823; //Display ID's of the Mobs
+	MOB2                     = 64808;
+};NOTE: These numbers are random and do not correspond with anything.
+
+As you can see, we've declared the variables for text, spells, and mobs that the creature may spawn to aid it. You can further add spells for the mobs if you so wish. The names of the declared variables do not matter, but if you plan to use that variable a lot: the shorter it is, the less you have to type. The numbers to the side represent the corresponding textID, SpellID, and MobID. TextID's are inserted into the database under ScriptDev2, where they can have sound files attached to them. Each spellID and MobID must be the same as the entry ID's for spells and mobs in the database. If they are not, the spells will not work the way you had hoped.
+
+Script Structure, Part 1
+Like with all scripts, they must have a set structure in order to work properly. Here we will add in a structure so that we may code the creature.
+
+
+Code:
+#include "precompiled.h"
+#include "instance_instance_name.h"
+
+enum
+{
+	//Yells
+	NPC_AGGRO                = -204450; //Database ID's for text
+	NPC_DEATH                = -204451;
+	NPC_SLAY                 = -204452;
+	NPC_SAY_SPELL1           = -204453;
+	NPC_SAY_SPELL2           = -204454;
+	NPC_SAY_BESERK           = -204455;
+
+	//Spells
+	SPELL_1                  = 48923; //Spell IDs
+	SPELL_2                  = 58934;
+	BERSERK                  = 28399;
+
+	//Mobs
+	MOB1                     = 39823; //Display ID's of the Mobs
+	MOB2                     = 64808;
+};
+
+struct MANGOS_DLL_DECL CreatureAI : public ScriptedAI
+{
+
+}What this does is allow the creature to have it's own AI, or in more common terms, it allows the creature to cast spells and say things to players. This must always be declared as MANGOS_DLL_DECL, but the "CreatureAI" can be changed to whatever you want.
+
+Script Structure, Part 2
+I don't suppose this can be defined under script structure, but it is required for the script to work properly. Here we will add a constructor that is called only when the creature is first created.
+
+
+Code:
+#include "precompiled.h"
+#include "instance_instance_name.h"
+
+enum
+{
+	//Yells
+	NPC_AGGRO                = -204450; //Database ID's for text
+	NPC_DEATH                = -204451;
+	NPC_SLAY                 = -204452;
+	NPC_SAY_SPELL1           = -204453;
+	NPC_SAY_SPELL2           = -204454;
+	NPC_SAY_BESERK           = -204455;
+
+	//Spells
+	SPELL_1                  = 48923; //Spell IDs
+	SPELL_2                  = 58934;
+	BERSERK                  = 28399;
+
+	//Mobs
+	MOB1                     = 39823; //Display ID's of the Mobs
+	MOB2                     = 64808;
+};
+
+struct MANGOS_DLL_DECL CreatureAI : public ScriptedAI
+{
+	//Constructor
+	CreatureAI(Creature* pCreature) : ScriptedAI(pCreature)
+	{
+		Reset();
+	}
+
+	//Timer Declaration
+	uint32 m_uiSpell_1_timer;
+	uint32 m_uiSpell_2_timer;
+	uint32 m_uiBerserk_timer;
+
+	void Reset()
+	{
+		m_uiSpell_1_timer            = 3000; //Entered in milliseconds
+		m_uiSpell_2_timer            = 14000; // 14 Seconds
+		m_uiBerserk_timer            = 900000; // 15 Minutes
+	}
+}
+
+Here, we've declared timers for the spells. Timers must always be declared, otherwise the script returns errors. We use uint32 to declare these timers, which means an unused 32-bit integer. You can also use uint64 if you wish, but since this is such a small script, it isn't necessary. Now that the timers have been declared, they need to be given values. Well, we want to values to always be there, so we call back to our Reset() so that as soon as the creature is created, it has those timers assigned the the spells it casts. All spell timers are defined in milliseconds
+
+Basic Creature Scripts
+Now we must declare some basic creature scripts such as aggro, death, and spells. These aren't very complicated, unless you are doing random math to calculate random players.
+
+
+Code:
+#include "precompiled.h"
+#include "instance_instance_name.h"
+
+enum
+{
+	//Yells
+	NPC_AGGRO                = -204450; //Database ID's for text
+	NPC_DEATH                = -204451;
+	NPC_SLAY                 = -204452;
+	NPC_SAY_SPELL1           = -204453;
+	NPC_SAY_SPELL2           = -204454;
+	NPC_SAY_BESERK           = -204455;
+
+	//Spells
+	SPELL_1                  = 48923; //Spell IDs
+	SPELL_2                  = 58934;
+	BERSERK                  = 28399;
+
+	//Mobs
+	MOB1                     = 39823; //Display ID's of the Mobs
+	MOB2                     = 64808;
+};
+
+struct MANGOS_DLL_DECL CreatureAI : public ScriptedAI
+{
+	//Constructor
+	CreatureAI(Creature* pCreature) : ScriptedAI(pCreature)
+	{
+		Reset();
+	}
+
+	//Timer Declaration
+	uint32 m_uiSpell_1_timer;
+	uint32 m_uiSpell_2_timer;
+	uint32 m_uiBerserk_timer;
+
+	void Reset()
+	{
+		m_uiSpell_1_timer            = 3000; //Entered in milliseconds
+		m_uiSpell_2_timer            = 14000; // 14 Seconds
+		m_uiBerserk_timer            = 900000; // 15 Minutes
+	}
+
+	//Aggro
+	void Aggro(Unit*, pWho)
+	{
+		DoScriptText(NPC_AGGRO, m_creature, pWho);
+	}
+
+	//Killed
+	void JustDied(Unit* pKiller)
+	{
+		DoScriptText(NPC_DEATH, m_creature);
+	}
+
+	//Killed Player
+	void KilledUnit(pUnit* pVictim)
+	{
+		DoScriptText(NPC_SLAY, m_creature);
+	}
+}Here, I've added some very basic effects to when a player Aggros the creature, kills it, or is killed by it. The creatures are set to say what we had defined before. The command DoScriptText tells the ScriptLoader to say what is defined at NPC_AGGRO, and who it is said by. By default, m_creature is the creature in the script.
+
+Adding Spells
+Adding spells is a tad bit different then adding basic controls. You must call the AI first, and the script the spells.
+
+
+Code:
+#include "precompiled.h"
+#include "instance_instance_name.h"
+
+enum
+{
+	//Yells
+	NPC_AGGRO                = -204450; //Database ID's for text
+	NPC_DEATH                = -204451;
+	NPC_SLAY                 = -204452;
+	NPC_SAY_SPELL1           = -204453;
+	NPC_SAY_SPELL2           = -204454;
+	NPC_SAY_BESERK           = -204455;
+
+	//Spells
+	SPELL_1                  = 48923; //Spell IDs
+	SPELL_2                  = 58934;
+	BERSERK                  = 28399;
+
+	//Mobs
+	MOB1                     = 39823; //Display ID's of the Mobs
+	MOB2                     = 64808;
+};
+
+struct MANGOS_DLL_DECL CreatureAI : public ScriptedAI
+{
+	//Constructor
+	CreatureAI(Creature* pCreature) : ScriptedAI(pCreature)
+	{
+		Reset();
+	}
+
+	//Timer Declaration
+	uint32 m_uiSpell_1_timer;
+	uint32 m_uiSpell_2_timer;
+	uint32 m_uiBerserk_timer;
+
+	void Reset()
+	{
+		m_uiSpell_1_timer            = 3000; //Entered in milliseconds
+		m_uiSpell_2_timer            = 14000; // 14 Seconds
+		m_uiBerserk_timer            = 900000; // 15 Minutes
+	}
+
+	//Aggro
+	void Aggro(Unit*, pWho)
+	{
+		DoScriptText(NPC_AGGRO, m_creature, pWho);
+	}
+
+	//Killed
+	void JustDied(Unit* pKiller)
+	{
+		DoScriptText(NPC_DEATH, m_creature);
+	}
+
+	//Killed Player
+	void KilledUnit(pUnit* pVictim)
+	{
+		DoScriptText(NPC_SLAY, m_creature);
+	}
+
+	//AI Update, called every 100ms as long as player is within range.
+	void UpdateAI(const uin32 uiDiff)
+	{
+		//Spell 1
+		if m_uiSpell_1_timer < uiDiff
+		{
+			DoCastSpellIfCan(m_creature->GetVictim(), SPELL_1);
+			DoScriptText(NPC_SAY_SPELL1, m_creature);
+			m_uiSpell_1_timer = 3000;
+		}
+		else
+			m_uiSpell_1_timer -= uiDiff;
+
+		//Spell2
+		if m_uiSpell_2_timer < uiDiff
+		{
+			DoCastSpellIfCan(m_creature->GetVictim(), SPELL_2);
+			DoScriptText(NPC_SAY_SPELL2, m_creature);
+			m_uiSpell_2_timer = 14000;
+		}
+		else
+			m_uiSpell_2_timer -= uiDiff;
+
+		//Berserk
+		if m_uiBerserk_timer < uiDiff
+		{
+			DoCastSpellIfCan(m_creature->GetVictim(), BERSERK);
+			DoScriptText(NPC_SAY_BERSERK, m_creature);
+			m_uiBerserk_timer = 30000;
+		}
+		else
+			m_uiBerserk_timer -= uiDiff;
+}Here, we've added both spells, as well as the Berserk spell. At the beginning, we call UpdateAI once again, and define a new uint32, uiDiff. Since it is a constant, the number will never change, and it's default value is zero(I believe). Afterwards, we use if/else statements to declare the spells. If the spell has a timer(cast time) of more than 0 seconds, then it runs the if statement. Otherwise, it just declares that the timers are less than or equal to uiDiff. We also call the timers again because this defines when the spell is to be cast again. As you can see, the new Berserk timer is only 30 seconds. This means that if players aren't dead within 30 seconds of it's activation, it is activated again.
+
+MOB AND CREATURE SCRIPTING COMING SOON.
+
+Declaring the Script
+So, the script is finished, correct? Not. We still have to call the AI, and then we have to add a script to allow it to be called in the ScriptLoader.
+
+
+Code:
+#include "precompiled.h"
+#include "instance_instance_name.h"
+
+enum
+{
+	//Yells
+	NPC_AGGRO                = -204450; //Database ID's for text
+	NPC_DEATH                = -204451;
+	NPC_SLAY                 = -204452;
+	NPC_SAY_SPELL1           = -204453;
+	NPC_SAY_SPELL2           = -204454;
+	NPC_SAY_BESERK           = -204455;
+
+	//Spells
+	SPELL_1                  = 48923; //Spell IDs
+	SPELL_2                  = 58934;
+	BERSERK                  = 28399;
+
+	//Mobs
+	MOB1                     = 39823; //Display ID's of the Mobs
+	MOB2                     = 64808;
+};
+
+struct MANGOS_DLL_DECL CreatureAI : public ScriptedAI
+{
+	//Constructor
+	CreatureAI(Creature* pCreature) : ScriptedAI(pCreature)
+	{
+		Reset();
+	}
+
+	//Timer Declaration
+	uint32 m_uiSpell_1_timer;
+	uint32 m_uiSpell_2_timer;
+	uint32 m_uiBerserk_timer;
+
+	void Reset()
+	{
+		m_uiSpell_1_timer            = 3000; //Entered in milliseconds
+		m_uiSpell_2_timer            = 14000; // 14 Seconds
+		m_uiBerserk_timer            = 900000; // 15 Minutes
+	}
+
+	//Aggro
+	void Aggro(Unit*, pWho)
+	{
+		DoScriptText(NPC_AGGRO, m_creature, pWho);
+	}
+
+	//Killed
+	void JustDied(Unit* pKiller)
+	{
+		DoScriptText(NPC_DEATH, m_creature);
+	}
+
+	//Killed Player
+	void KilledUnit(pUnit* pVictim)
+	{
+		DoScriptText(NPC_SLAY, m_creature);
+	}
+
+	//AI Update, called every 100ms as long as player is within range.
+	void UpdateAI(const uin32 uiDiff)
+	{
+		//Spell 1
+		if m_uiSpell_1_timer < uiDiff
+		{
+			DoCastSpellIfCan(m_creature->GetVictim(), SPELL_1);
+			DoScriptText(NPC_SAY_SPELL1, m_creature);
+			m_uiSpell_1_timer = 3000;
+		}
+		else
+			m_uiSpell_1_timer -= uiDiff;
+
+		//Spell2
+		if m_uiSpell_2_timer < uiDiff
+		{
+			DoCastSpellIfCan(m_creature->GetVictim(), SPELL_2);
+			DoScriptText(NPC_SAY_SPELL2, m_creature);
+			m_uiSpell_2_timer = 14000;
+		}
+		else
+			m_uiSpell_2_timer -= uiDiff;
+
+		//Berserk
+		if m_uiBerserk_timer < uiDiff
+		{
+			DoCastSpellIfCan(m_creature->GetVictim(), BERSERK);
+			DoScriptText(NPC_SAY_BERSERK, m_creature);
+			m_uiBerserk_timer = 30000;
+		}
+		else
+			m_uiBerserk_timer -= uiDiff;
+}
+
+CreatureAI* GetAI_CreatureAI(Creature* pCreature)
+{
+	return new CreatureAI(pCreature);
+}
+
+void AddSC_Creature()
+{
+    Script* newscript;
+
+    newscript = new Script;
+    newscript->Name = "creature";
+    newscript->GetAI = &GetAI_creature;
+    newscript->RegisterSelf();
+}CreatureAI has been called and created, so that we can use it for the function that the scriptloader will call. You must always use AddSC_, but you may use any name for the creature. In order to keep everything organized, however, it is recommended to use the name of the creature or the name of the file, so that people don't have to search through the document to see what they need to add into Scriptloader.cpp. The creature inside the quotations and after the &GetAI_ function must be the same.
+
+This concludes the tutorial. If you have any questions, or you find something wrong with the tutorial, feel free to point it out.
+
+NOTE: I am very new to ScriptDev2 and C++, so I do not know how to fully control add spawns yet. I will add that part of the tutorial as soon as I can. 
+
+==========================================================================================================================================================================
+

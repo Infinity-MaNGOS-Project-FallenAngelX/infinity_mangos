@@ -1,0 +1,165 @@
+Map                        Minimum level    Maximum level 
+Testing(13)                      1             0 
+
+Scott Test (25)                  1             0 
+
+Alterac Valley (30)             10             0
+ 
+Shadowfang Keep (33)            10             0 
+
+Stormwind Stockade (34)         15             0 
+
+StormwindPrison (35)             1             0 
+
+Deadmines (36)                  10             0 
+
+Azshara Crater (37)              1             0 
+
+Collin's Test (42)               1             0 
+
+Wailing Caverns (43)            10             0 
+
+Monastery (44)                   1             0 
+
+Razorfen Kraul (47)             15             0 
+
+Blackfathom Deeps (48)          10             0 
+
+Uldaman (70)                    30             0 
+
+Gnomeregan (90)                 15             0 
+
+Sunken Temple (109)             35             0 
+
+Razorfen Downs (129)            25             0 
+
+Emerald Dream (169)              1             0 
+
+Scarlet Monastery (189)         20             0 
+
+Zul'Farrak (209)                35             0 
+
+Blackrock Spire (229)           45             0 
+
+Blackrock Depths (230)          40             0 
+
+Onyxia's Lair (249)             80             0 
+
+Opening of the Dark Portal(269) 66             0 
+
+Scholomance (289)               45             0 
+
+Zul'Gurub (309)                 50             0 
+
+Stratholme (329)                45             0 
+
+Maraudon (349)                  30             0 
+
+Deeprun Tram (369)               1             0 
+
+Ragefire Chasm (389)             8             0 
+
+Molten Core (409)               50             0 
+
+Dire Maul (429)                 45             0 
+
+Alliance PVP Barracks (449)       1            0 
+
+Horde PVP Barracks (450)          1            0 
+
+Development Land (451)            1            0 
+
+Blackwing Lair (469)             60            0 
+
+Warsong Gulch (489)              10            0 
+
+Ruins of Ahn'Qiraj (509)         60            0 
+
+Arathi Basin (529)               10            0 
+
+Ahn'Qiraj Temple (531)           60            0 
+
+Karazhan (532)                   68            0 
+
+Naxxramas (533)                  80            0 
+
+The Battle for Mount Hyjal(534)  70            0 
+
+Hellfire Citadel: The Shattered Halls(540) 55 0 
+Hellfire Citadel: The Blood Furnace (542) 55 0 
+Hellfire Citadel: Ramparts (543) 55 0 
+Magtheridon's Lair (544) 65 0 
+Coilfang: The Steamvault (545) 55 0 
+Coilfang: The Underbog (546) 55 0 
+Coilfang: The Slave Pens (547) 55 0 
+Coilfang: Serpentshrine Cavern (548) 70 0 
+Tempest Keep (550) 70 0 
+Tempest Keep: The Arcatraz (552) 68 0 
+Tempest Keep: The Botanica (553) 68 0 
+Tempest Keep: The Mechanar (554) 68 0 
+Auchindoun: Shadow Labyrinth (555) 65 0 
+Auchindoun: Sethekk Halls (556) 55 0 
+Auchindoun: Mana-Tombs (557) 55 0 
+Auchindoun: Auchenai Crypts (558) 55 0 
+Nagrand Arena (559) 10 0 
+The Escape From Durnholde (560) 66 0 
+Blade's Edge Arena (562) 10 0 
+Black Temple (564) 70 0 
+Gruul's Lair (565) 65 0 
+Eye of the Storm (566) 10 0 
+Zul'Aman (568) 70 0 
+Ruins of Lordaeron (572) 10 0 
+ExteriorTest (573) 1 0 
+Utgarde Keep (574) 70 72 
+Utgarde Pinnacle (575) 80 80 
+The Nexus (576) 70 72 
+The Oculus (578) 80 80 
+The Sunwell (580) 70 0 
+Transport: Rut'theran to Auberdine (582) 1 0 
+Transport: Menethil to Theramore (584) 1 0 
+Magister's Terrace (585) 70 0 
+Transport: Exodar to Auberdine (586) 1 0 
+Transport: Feathermoon Ferry (587) 1 0 
+Transport: Menethil to Auberdine (588) 1 0 
+Transport: Orgrimmar to Grom'Gol (589) 1 0 
+Transport: Grom'Gol to Undercity (590) 1 0 
+Transport: Undercity to Orgrimmar (591) 1 0 
+Transport: Borean Tundra Test (592) 1 0 
+Transport: Booty Bay to Ratchet (593) 1 0 
+Transport: Howling Fjord Sister Mercy (Quest) (594) 1 0 
+The Culling of Stratholme (595) 74 80 
+Transport: Naglfar (596) 1 0 
+Craig Test (597) 1 0 
+Sunwell Fix (Unused) (598) 0 0 
+Halls of Stone (599) 70 0 
+Drak'Tharon Keep (600) 70 0 
+Azjol-Nerub (601) 80 80 
+Halls of Lightning (602) 70 0 
+Ulduar (603) 80 0 
+Gundrak (604) 71 80 
+Development Land (non-weighted textures) (605) 1 0 
+QA and DVD (606) 1 0 
+Strand of the Ancients (607) 71 0 
+Violet Hold (608) 70 80 
+Transport: Tirisfal to Vengeance Landing (610) 1 0 
+Transport: Menethil to Valgarde (612) 1 0 
+Transport: Orgrimmar to Warsong Hold (613) 1 0 
+Transport: Stormwind to Valiance Keep (614) 1 0 
+The Obsidian Sanctum (615) 80 0 
+The Eye of Eternity (616) 80 0 
+Dalaran Sewers (617) 80 80 
+The Ring of Valor (618) 80 80 
+Ahn'kahet: The Old Kingdom (619) 68 80 
+Transport: Moa'ki to Unu'pe (620) 1 0 
+Transport: Moa'ki to Kamagua (621) 1 0 
+Transport: Orgrim's Hammer (622) 1 0 
+Transport: The Skybreaker (623) 1 0 
+Vault of Archavon (624) 80 0 
+Icecrown Citadel (631) 80 0 
+The Forge of Souls (632) 75 0 
+Trial of the Crusader (649) 80 0 
+Trial of the Champion (650) 75 0 
+Pit of Saron (658) 75 0 
+Halls of Reflection (668) 75 0 
+(724) 80 80 
+

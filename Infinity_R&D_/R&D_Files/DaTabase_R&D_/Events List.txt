@@ -1,0 +1,84 @@
+Event name                          First Starting time                Occurance(days/hours )     Length (days/hours)
+ April                               2010-04-01 00:01:00                      365 days                 30 days  
+ 
+August                               2010-08-01 00:01:00                      365 days                 31 days  
+
+Brewfest                             2010-09-20 02:00:00                      365 days                 17 days  
+
+Call to Arms: Alterac Valley!        2010-10-22 00:01:00                       42 days                 4 days  
+
+Call to Arms: Arathi Basin!          2010-10-08 00:01:00                       42 days                 4 days  
+
+Call to Arms: Eye of the Storm!      2010-10-15 00:01:00                       42 days                 4 days  
+
+Call to Arms: Isle of Conquest!      2010-10-01 00:01:00                       42 days                 4 days  
+
+Call to Arms: Strand of the Ancients!    2010-09-24 00:01:00                   42 days                 4 days  
+
+Call to Arms: Warsong Gulch!         2010-09-17 00:01:00                       42 days                 4 days  
+
+Children's Week                      2011-05-01 02:00:00                      365 days                 7 days  
+
+Darkmoon Faire (Elwynn Forest)       2010-02-27 23:01:00                       91 days                 7 days  
+
+Darkmoon Faire (Mulgore)             2010-01-02 23:01:00                       91 days                 7 days  
+
+Darkmoon Faire (Terokkar Forest)     2010-01-30 23:01:00                       91 days                 7 days  
+
+Darkmoon Faire Building (Elwynn Forest)      2010-12-05 20:01:00               91 days                 3 days  
+
+Day of the Dead                      2010-11-01 03:00:00                       365 days                1 days  
+
+Death Legion Attack Stormwind City (Undead Attack)  2007-08-12 21:59:59         5 days                 1 hours 
+
+December                             2010-12-01 00:01:00                       365 days                31 days  
+
+Edge of Madness, Hazza'rah           2010-09-20 00:01:00                        56 days                14 days  
+
+Edge of Madness, Renataki            2010-10-04 00:01:00                        56 days                14 days  
+
+Edge of Madness, Wushoolay           2010-10-18 00:01:00                        56 days                14 days  
+
+Feast of Winter Veil                 2010-12-15 08:00:00                        365 days               18 days  
+
+February                             2010-02-01 00:01:00                        365 days               28 days  
+
+Fishing (00.00-06.00)                2010-11-01 00:00:00                         1 days                6 hours 
+
+Fishing (06.00-12.00) 2010-11-01 06:00:00 1 days  6 hours 
+Fishing (12.00-18.00) 2010-11-01 12:00:00 1 days  6 hours 
+Fishing (18.00-00.00) 2010-11-01 18:00:00 1 days  6 hours 
+Fishing (summer season) 2011-03-20 00:01:00 365 days  187 days  
+Fishing (winter season) 2010-09-23 00:01:00 365 days  178 days  
+Fishing Extravaganza 2009-06-14 14:00:00 7 days  2 hours 
+Fishing Extravaganza Announce 2010-09-26 13:50:00 7 days  2 hours 
+Fishing Extravaganza Questgivers 2009-03-29 14:00:00 7 days  3 hours 
+Gurubashi Arena Booty Run 2010-09-20 00:00:00 3 hours 2 hours 
+Hallow's End 2010-10-18 14:00:00 365 days  14 days  
+Hammerfall Under Attack 2010-09-20 00:15:00 1 hours  
+Harvest Festival 2010-09-16 02:00:00 365 days  7 days  
+January 2010-01-01 00:01:00 365 days  31 days  
+July 2010-07-01 00:01:00 365 days  31 days  
+June 2010-06-01 00:01:00 365 days  30 days  
+Kalu'ak Fishing Derby 2010-09-25 14:00:00 7 days  1 hours 
+L70ETC Concert 2010-09-18 14:00:00 7 days   
+Love is in the Air 2011-02-06 02:00:00 365 days  13 days 1 hours 
+Lunar Festival 2011-01-23 08:00:00 365 days  21 days  
+March 2010-03-01 00:01:00 365 days  31 days  
+May 2010-05-01 00:01:00 365 days  31 days  
+Midsummer Fire Festival 2010-06-21 02:00:00 365 days  14 days  
+New Year's Eve 2010-12-31 22:00:00 365 days  2 hours 
+Nights 2010-05-01 21:00:00 1 days  12 hours 
+Noblegarden 2011-04-24 02:00:00 365 days  7 days  
+November 2010-11-01 00:01:00 365 days  30 days  
+October 2010-10-01 00:01:00 365 days  31 days  
+Operation: Gnomeregan 2010-09-08 00:00:01 60 days  300 days  
+Orgrimmar Grunts Start Defend 2007-08-12 16:00:07 5 days  1 hours 
+Pilgrim's Bounty 2010-11-21 03:00:00 379 days  6 days 23 hours 
+Pirates' Day 2010-09-19 02:00:00 365 days  1 days  
+September 2010-09-01 00:01:00 365 days  30 days  
+Thrallmar Demon Attack 2010-09-20 00:00:00   
+Twilight's Cult & Elemental Invasion 2011-11-01 00:00:01 60 days  300 days  
+Wolfs Attack to the Orgrimmar (Wolfs Group One) 2009-03-06 07:00:00 1 days  1 hours 
+Wolfs Attack to the Orgrimmar (Wolfs Group Two) 2009-03-06 04:05:00 5 days  1 hours 
+Zalazane's Fall 2010-09-08 00:00:01 60 days  300 days  
