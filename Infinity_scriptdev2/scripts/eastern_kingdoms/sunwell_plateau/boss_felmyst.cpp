@@ -717,7 +717,7 @@ struct MANGOS_DLL_DECL mob_felmyst_vapor_trailAI : public ScriptedAI
 
     int32 m_summonTimer;
     int32 m_createSummonTimer;
-    int32 m_liveTimer;
+    uint32 m_liveTimer;
 
     void Reset()
     {

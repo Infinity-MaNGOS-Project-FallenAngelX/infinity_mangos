@@ -1246,7 +1246,7 @@ struct MANGOS_DLL_DECL npc_eye_of_acherusAI : public ScriptedAI
         Reset();
     }
 
-    int32 StartTimer;
+    uint32 StartTimer;
     bool Active;
 	ObjectGuid ownerGuid;
 

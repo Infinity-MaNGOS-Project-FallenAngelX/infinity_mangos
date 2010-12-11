@@ -3077,7 +3077,7 @@ PetScalingData* Pet::CalculateScalingData(bool recalculate)
 // diff contains the time in milliseconds since last regen.
 void Pet::Regenerate(Powers power, uint32 diff)
 {
-    int32 curValue = GetPower(power);
+    uint32 curValue = GetPower(power);
     uint32 maxValue = GetMaxPower(power);
 
     float addvalue = 0.0f;

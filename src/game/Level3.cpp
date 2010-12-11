@@ -4758,10 +4758,10 @@ bool ChatHandler::HandleCharacterLevelCommand(char* args)
 {
     char* nameStr = ExtractOptNotLastArg(&args);
 
-    int32 newlevel;
+    uint32 newlevel;
     bool nolevel = false;
     // exception opt second arg: .character level $name
-    if (!ExtractInt32(&args, newlevel))
+    if (!ExtractUInt32(&args, newlevel))
     {
         if (!nameStr)
         {
@@ -4831,7 +4831,7 @@ bool ChatHandler::HandleLevelUpCommand(char* args)
         return false;
 
     int32 oldlevel = target ? target->getLevel() : Player::GetLevelFromDB(target_guid);
-    int32 newlevel = oldlevel + addlevel;
+    uint32 newlevel = oldlevel + addlevel;
 
     if (newlevel < 1)
         newlevel = 1;
