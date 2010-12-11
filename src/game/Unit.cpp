@@ -4041,7 +4041,10 @@ bool Unit::IsNonMeleeSpellCasted(bool withDelayed, bool skipChanneled, bool skip
     if ( m_currentSpells[CURRENT_GENERIC_SPELL] &&
         (m_currentSpells[CURRENT_GENERIC_SPELL]->getState() != SPELL_STATE_FINISHED) &&
         (withDelayed || m_currentSpells[CURRENT_GENERIC_SPELL]->getState() != SPELL_STATE_DELAYED) )
-        return(true);
+        {
+            if (!(m_currentSpells[CURRENT_GENERIC_SPELL]->m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_NOT_RESET_AUTOSHOT))
+                return(true);
+        }
 
     // channeled spells may be delayed, but they are still considered casted
     else if ( !skipChanneled && m_currentSpells[CURRENT_CHANNELED_SPELL] &&
@@ -6524,9 +6527,8 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, Spell* spell, SpellEffectIndex eff)
                 if (magnet->isAlive() && magnet->IsWithinLOSInMap(this) && spell->CheckTarget(magnet, eff))
                 {
                     if (SpellAuraHolder *holder = (*itr)->GetHolder())
-                        if (holder->GetAuraCharges())
-                            if (holder->DropAuraCharge())
-                                victim->RemoveSpellAuraHolder(holder);
+                        if (holder->DropAuraCharge())
+                            victim->RemoveSpellAuraHolder(holder);
                     return magnet;
                 }
             }
@@ -6545,9 +6547,8 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, Spell* spell, SpellEffectIndex eff)
                     if (roll_chance_i((*i)->GetModifier()->m_amount))
                     {
                         if (SpellAuraHolder *holder = (*i)->GetHolder())
-                            if (holder->GetAuraCharges())
-                                if (holder->DropAuraCharge())
-                                    victim->RemoveSpellAuraHolder(holder);
+                            if (holder->DropAuraCharge())
+                                victim->RemoveSpellAuraHolder(holder);
                         return magnet;
                     }
                 }
@@ -6775,7 +6776,7 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
                 else // Tundra Stalker
                 {
                     // Frost Fever (target debuff)
-                    if (pVictim->GetAura(SPELL_AURA_MOD_HASTE, SPELLFAMILY_DEATHKNIGHT, UI64LIT(0x0000000000000000), 0x00000002))
+                    if (pVictim->GetAura(SPELL_AURA_MOD_MELEE_HASTE, SPELLFAMILY_DEATHKNIGHT, UI64LIT(0x0000000000000000), 0x00000002))
                         DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
                     break;
                 }
@@ -7830,7 +7831,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit *pVictim, uint32 pdamage,WeaponAttackType
                     else // Tundra Stalker
                     {
                         // Frost Fever (target debuff)
-                        if (pVictim->GetAura(SPELL_AURA_MOD_HASTE, SPELLFAMILY_DEATHKNIGHT, UI64LIT(0x0000000000000000), 0x00000002))
+                        if (pVictim->GetAura(SPELL_AURA_MOD_MELEE_HASTE, SPELLFAMILY_DEATHKNIGHT, UI64LIT(0x0000000000000000), 0x00000002))
                             DonePercent *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
                         break;
                     }
