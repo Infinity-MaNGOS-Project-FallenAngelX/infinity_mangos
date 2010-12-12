@@ -161,5 +161,5 @@ Trial of the Crusader (649) 80 0
 Trial of the Champion (650) 75 0 
 Pit of Saron (658) 75 0 
 Halls of Reflection (668) 75 0 
-(724) 80 80 
+Ruby Sanctum(724) 80 80 
 

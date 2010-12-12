@@ -9,3 +9,11 @@
 5. fix bug with quest ambush at overlook   quest works fine   and credit is fine
 
 6.fix custom tokenvendor and custom talent point stone item ( so far this is all i have tested in customs area )
+
+7. swp and oculus need the new code merged in to make both instances complete  use the best of ech ect ect
+
+8. DK starting area needs gone throught one more time to work out final bugs
+
+9.malgyos event needs fixed  mainly just the vehicle stuff of it ... after a few gm test  first thing is fix the disc and control of the wyrm and we'll go from there
+
+10.
