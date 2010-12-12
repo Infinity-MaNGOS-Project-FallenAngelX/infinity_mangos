@@ -602,6 +602,8 @@ Player::Player (WorldSession *session): Unit(), m_mover(this), m_camera(this), m
 	
     /*  Flying Everywhere   */
     m_flytimer = time(NULL);
+	
+    m_grid_update_timer = 0;
 }
 
 Player::~Player ()
