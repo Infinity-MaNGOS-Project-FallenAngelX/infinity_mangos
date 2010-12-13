@@ -619,6 +619,10 @@
 						>
 					</File>
 					<File
+                        RelativePath="..\scripts\eastern_kingdoms\blackrock_depths\boss_coren_direbrew.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\scripts\eastern_kingdoms\blackrock_depths\boss_emperor_dagran_thaurissan.cpp"
 						>
 					</File>
@@ -714,6 +718,10 @@
 				<Filter
 					Name="blackwing_lair"
 					>
+					<File
+						RelativePath="..\scripts\eastern_kingdoms\blackwing_lair\blackwing_lair.h"
+						>
+					</File>
 					<File
 						RelativePath="..\scripts\eastern_kingdoms\blackwing_lair\boss_broodlord_lashlayer.cpp"
 						>
@@ -835,6 +843,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\scripts\eastern_kingdoms\karazhan\chess_event.cpp"
+						>
+					</File>
+                    <File
 						RelativePath="..\scripts\eastern_kingdoms\karazhan\instance_karazhan.cpp"
 						>
 					</File>
@@ -1058,6 +1070,10 @@
 				<Filter
 					Name="shadowfang_keep"
 					>
+					<File
+						RelativePath="..\scripts\eastern_kingdoms\shadowfang_keep\boss_hummel.cpp"
+						>
+					</File>
 					<File
 						RelativePath="..\scripts\eastern_kingdoms\shadowfang_keep\instance_shadowfang_keep.cpp"
 						>
@@ -1569,6 +1585,19 @@
 				</Filter>
 				<Filter
 					Name="dire_maul"
+ 					>
+					<File
+						RelativePath="..\scripts\kalimdor\dire_maul\dire_maul.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\kalimdor\dire_maul\dire_maul.h"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\kalimdor\dire_maul\instance_dire_maul.cpp"
+						>
+					</File>
 					>
 				</Filter>
 				<Filter
@@ -2677,6 +2706,10 @@
 							RelativePath="..\scripts\outland\auchindoun\auchenai_crypts\boss_exarch_maladaar.cpp"
 							>
 						</File>
+						<File
+							RelativePath="..\scripts\outland\auchindoun\auchenai_crypts\boss_shirrak.cpp"
+							>
+						</File>
 					</Filter>
 					<Filter
 						Name="mana_tombs"
@@ -2693,6 +2726,10 @@
 					<Filter
 						Name="sethekk_halls"
 						>
+						<File
+							RelativePath="..\scripts\outland\auchindoun\sethekk_halls\boss_anzu.cpp"
+							>
+						</File>
 						<File
 							RelativePath="..\scripts\outland\auchindoun\sethekk_halls\boss_darkweaver_syth.cpp"
 							>
@@ -2832,6 +2869,11 @@
 					</Filter>
 					<Filter
 						Name="slave_pens"
+ 						>
+						<File
+							RelativePath="..\scripts\outland\coilfang_reservoir\slave_pens\boss_ahune.cpp"
+							>
+						</File>
 						>
 					</Filter>
 					<Filter

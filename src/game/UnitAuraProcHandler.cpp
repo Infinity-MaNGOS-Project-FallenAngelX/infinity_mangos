@@ -964,16 +964,16 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 case 63320:
                     triggered_spell_id = 63321;
                     break;
-                // Purified Shard of the Scale - Equip Effect (10\25)
+                
+                // Shiny Shard of the Scale - Equip Effect
                 case 69739:
+                    // Cauterizing Heal or Searing Flame
+                    triggered_spell_id = (procFlag & PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL) ? 69734 : 69730;
+                    break;
+                // Purified Shard of the Scale - Equip Effect
                 case 69755:
-                    if(GetTypeId() != TYPEID_PLAYER)
-                        return SPELL_AURA_PROC_FAILED;
-
-                    if (procFlag == PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL)
-                        triggered_spell_id = dummySpell->Id == 69739 ? 69734 : 69733;
-                    else if (procFlag = PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT)
-                        triggered_spell_id = dummySpell->Id == 69739 ? 69730 : 69729;
+                    // Cauterizing Heal or Searing Flame
+                    triggered_spell_id = (procFlag & PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL) ? 69733 : 69729;
                     break;
                 // Item - Shadowmourne Legendary
                 case 71903:

@@ -70,7 +70,10 @@ void Pet::AddToWorld()
 {
     ///- Register the pet for guid lookup
     if (!((Creature*)this)->IsInWorld())
+    {
         GetMap()->GetObjectsStore().insert<Pet>(GetGUID(), (Pet*)this);
+        sObjectAccessor.AddObject(this);
+    }
 
     Unit::AddToWorld();
 }
@@ -79,7 +82,10 @@ void Pet::RemoveFromWorld()
 {
     ///- Remove the pet from the accessor
     if (((Creature*)this)->IsInWorld())
+    {
         GetMap()->GetObjectsStore().erase<Pet>(GetGUID(), (Pet*)NULL);
+        sObjectAccessor.RemoveObject(this);
+    }
 
     ///- Don't call the function for Creature, normal mobs + totems go in a different storage
     Unit::RemoveFromWorld();
@@ -1811,10 +1817,13 @@ uint8 Pet::GetMaxTalentPointsForLevel(uint32 level)
 
 void Pet::ToggleAutocast(uint32 spellid, bool apply)
 {
-    if(IsPassiveSpell(spellid) || !isControlled() || !IsInWorld())
+    if(IsPassiveSpell(spellid) || !isControlled())
         return;
 
     PetSpellMap::iterator itr = m_spells.find(spellid);
+
+    if (itr == m_spells.end())
+        return;
 
     uint32 i;
 
