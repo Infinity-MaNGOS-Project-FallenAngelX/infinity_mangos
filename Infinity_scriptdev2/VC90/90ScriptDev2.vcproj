@@ -1585,7 +1585,7 @@
 				</Filter>
 				<Filter
 					Name="dire_maul"
- 					>
+					>
 					<File
 						RelativePath="..\scripts\kalimdor\dire_maul\dire_maul.cpp"
 						>
@@ -1598,7 +1598,6 @@
 						RelativePath="..\scripts\kalimdor\dire_maul\instance_dire_maul.cpp"
 						>
 					</File>
-					>
 				</Filter>
 				<Filter
 					Name="maraudon"
@@ -2869,12 +2868,11 @@
 					</Filter>
 					<Filter
 						Name="slave_pens"
- 						>
+						>
 						<File
 							RelativePath="..\scripts\outland\coilfang_reservoir\slave_pens\boss_ahune.cpp"
 							>
 						</File>
-						>
 					</Filter>
 					<Filter
 						Name="steam_vault"
