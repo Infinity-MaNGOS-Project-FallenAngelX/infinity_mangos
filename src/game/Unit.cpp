@@ -1387,6 +1387,15 @@ void Unit::CastSpell(Unit* Victim, SpellEntry const *spellInfo, bool triggered, 
 
 void Unit::CastCustomSpell(Unit* Victim,uint32 spellId, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item *castItem, Aura* triggeredByAura, ObjectGuid originalCaster, SpellEntry const* triggeredBy)
 {
+    if(spellId == 0 || spellId > 100000 )
+    {
+        if (triggeredByAura)
+            sLog.outError("CastCustomSpell: unknown spell id %i by caster: %s triggered by aura %u (eff %u)", spellId, GetGuidStr().c_str(), triggeredByAura->GetId(), triggeredByAura->GetEffIndex());
+        else
+            sLog.outError("CastCustomSpell: unknown spell id %i by caster: %s", spellId, GetGuidStr().c_str());
+        return;
+    }
+
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
 
     if(!spellInfo)
@@ -4767,8 +4776,8 @@ void Unit::RemoveAuraHolderDueToSpellByDispel(uint32 spellId, int32 stackAmount,
     {
         if (Aura* dotAura = GetAura(SPELL_AURA_PERIODIC_DAMAGE,SPELLFAMILY_WARLOCK,UI64LIT(0x010000000000),0x00000000,casterGUID))
         {
-            // use clean value for initial damage
-            int32 damage = dotAura->GetSpellProto()->CalculateSimpleValue(EFFECT_INDEX_0);
+            // use spellpower-modified value for initial damage
+            int damage = dotAura->GetModifier()->m_amount;
             damage *= 9;
 
             // Remove spell auras from stack
@@ -6281,10 +6290,7 @@ Pet* Unit::GetPet() const
 
 Pet* Unit::_GetPet(ObjectGuid guid) const
 {
-    if (Map* pMap = GetMap())
-        return pMap->GetPet(guid);
-    else
-        return NULL;
+    return ObjectAccessor::FindPet(guid);
 }
 
 void Unit::RemoveMiniPet()
@@ -8496,6 +8502,11 @@ bool Unit::isVisibleForOrDetect(Unit const* u, WorldObject const* viewPoint, boo
     if (m_Visibility == VISIBILITY_OFF)
         return false;
 
+    // Arena visibility before arena start
+    if (GetTypeId() == TYPEID_PLAYER && HasAura(32727)) // Arena Preparation
+        if (Player * p_target = ((Unit*)u)->GetCharmerOrOwnerPlayerOrPlayerItself())
+            return ((Player*)this)->GetBGTeam() == p_target->GetBGTeam();
+
     // phased visibility (both must phased in same way)
     if(!InSamePhase(u))
         return false;
@@ -8882,14 +8893,14 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced, float ratio)
     {
         switch(mtype)
         {
-        case MOVE_RUN:
-            speed *= ((Creature*)this)->GetCreatureInfo()->speed_run;
-            break;
-        case MOVE_WALK:
-            speed *= ((Creature*)this)->GetCreatureInfo()->speed_walk;
-            break;
-        default:
-            break;
+            case MOVE_RUN:
+                speed *= ((Creature*)this)->GetCreatureInfo()->speed_run;
+                break;
+            case MOVE_WALK:
+                speed *= ((Creature*)this)->GetCreatureInfo()->speed_walk;
+                break;
+            default:
+                break;
         }
     }
 
