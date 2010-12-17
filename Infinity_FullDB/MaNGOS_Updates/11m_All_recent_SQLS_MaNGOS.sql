@@ -65,7 +65,12 @@ ALTER TABLE db_version CHANGE COLUMN required_10867_01_mangos_npc_trainer_templa
 ALTER TABLE creature_template
 ADD COLUMN trainer_id mediumint(8) unsigned NOT NULL default '0' AFTER equipment_id;
 
-
+-- Ferocious Inspiration
+DELETE FROM `spell_pet_auras` WHERE `spell` IN ('34455','34459','34460');
+INSERT INTO `spell_pet_auras` (`spell`, `effectId`, `pet`, `aura`) VALUES
+('34455','0','0','75593'),
+('34459','0','0','75446'),
+('34460','0','0','75447');
 
 --- FallenAngelX
 ALTER TABLE db_version_Infinity_Update CHANGE COLUMN r10 r11 bit;
