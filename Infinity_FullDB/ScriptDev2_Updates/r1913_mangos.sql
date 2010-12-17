@@ -1,0 +1,20 @@
+UPDATE gameobject_template SET ScriptName='go_lab_work_reagents' WHERE entry IN (190462, 190473, 190478, 190459);
+UPDATE `creature_template` SET `VehicleId` = 639, `AIName`='', `PowerType` = 3, `ScriptName`='boss_deathbringer_saurfang' WHERE `entry`=37813;
+
+DELETE FROM `spell_script_target` WHERE `entry` IN (72260, 72202, 72278,72279,72280);
+INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
+('72260', '1', '37813'),
+('72278', '1', '37813'),
+('72279', '1', '37813'),
+('72280', '1', '37813'),
+('72202', '1', '37813');
+
+DELETE FROM `spell_proc_event` WHERE entry IN (72176,72178, 72256);
+INSERT INTO `spell_proc_event` VALUES
+(72256, 0x7F,  0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0.000000, 0.000000, 0),
+(72178, 0x7F,  0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0.000000, 0.000000, 0),
+(72176, 0x7F,  0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0.000000, 0.000000, 0);
+ 
+ DELETE FROM `spell_script_target` WHERE `entry` IN (70360);
+ 
+ 
