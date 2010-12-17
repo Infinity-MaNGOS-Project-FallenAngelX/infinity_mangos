@@ -4,23 +4,26 @@
 
 3. one day  get mm_maps implented
 
-4. Jail system
+4. one day get Jail system implented
 
 5. fix bug with quest ambush at overlook   quest works fine   and credit is fine
 
-6.fix custom tokenvendor and custom talent point stone item ( so far this is all i have tested in customs area )
+6. fix custom tokenvendor and custom talent point stone item ( so far this is all i have tested in customs area )
 
 7. swp and oculus need the new code merged in to make both instances complete  use the best of ech ect ect
 
 8. DK starting area needs gone throught one more time to work out final bugs
 
-9.malgyos event needs fixed  mainly just the vehicle stuff of it ... after a few gm test  first thing is fix the disc and control of the wyrm and we'll go from there
+9. malgyos event needs fixed  mainly just the vehicle stuff of it ... after a few gm test  first thing is fix the disc and control of the wyrm and we'll go from there
 
 10.
 
 
 
 =====================================================================================================
-Last_Tested==============
+Tested============== verfied by ::fallenangelX(all listed,, all instance were gm  tested  and all quest were tested during playing)
 =====================================================================================================
-Eye of acherus___ 12_17_2010  =============
+Eye of acherus___ 12_17_2010  =============  Quest and eye is working
+RSS  ____12_17_2010____===============  instance is working and bosses are working
+nexus/nexus_______12_17_2010===================  instance and events are working (needs to test heroic version  or place the commanders on the normal version)
+Blood_elf Starting Area Quest (up to where you leave for ghostlands)_____12_17_2010 ===  i have 5 quest left to test  but so for only had to fix 2 quest
