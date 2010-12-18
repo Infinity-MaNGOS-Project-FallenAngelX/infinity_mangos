@@ -108,6 +108,10 @@ ObjectAccessor::SaveAllPlayers()
     HashMapHolder<Player>::ReadGuard g(HashMapHolder<Player>::GetLock());
     HashMapHolder<Player>::MapType& m = sObjectAccessor.GetPlayers();
     for(HashMapHolder<Player>::MapType::iterator itr = m.begin(); itr != m.end(); ++itr)
+    {
+         if (itr->second->m_jail_isjailed) continue; // Prevent jailed players to be saved
+         itr->second->SaveToDB();
+    }
         itr->second->SaveToDB();
 }
 
