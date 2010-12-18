@@ -54,6 +54,13 @@
 #include "DBCEnums.h"
 #include "AuctionHouseBot.h"
 
+bool ChatHandler::HandleJailReloadCommand(char* arg)
+{
+    sObjectMgr.LoadJailConf();
+    SendSysMessage(LANG_JAIL_RELOAD);
+    return true;
+}
+
 bool ChatHandler::HandleAHBotOptionsCommand(char* args)
 {
     uint32 ahMapID = 0;

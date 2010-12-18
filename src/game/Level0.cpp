@@ -29,6 +29,7 @@
 #include "revision.h"
 #include "revision_nr.h"
 #include "Util.h"
+#include "math.h"
 
 bool ChatHandler::HandleHelpCommand(char* args)
 {
@@ -65,6 +66,14 @@ bool ChatHandler::HandleAccountCommand(char* args)
 
 bool ChatHandler::HandleStartCommand(char* /*args*/)
 {
+
+    // Jail by WarHead & FallenAngelX
+    if (m_session->GetPlayer()->m_jail_isjailed)
+    {
+        SendSysMessage(LANG_JAIL_DENIED);
+        return true;
+    }
+
     Player *chr = m_session->GetPlayer();
 
     if(chr->IsTaxiFlying())
@@ -139,6 +148,13 @@ bool ChatHandler::HandleDismountCommand(char* /*args*/)
 bool ChatHandler::HandleSaveCommand(char* /*args*/)
 {
     Player *player=m_session->GetPlayer();
+	
+    // Jail by WarHead
+    if (player->m_jail_isjailed)
+    {
+        SendSysMessage(LANG_JAIL_DENIED);
+        return true;
+    }
 
     // save GM account without delay and output message (testing, etc)
     if(GetAccessLevel() > SEC_PLAYER)
@@ -242,6 +258,40 @@ bool ChatHandler::HandleAccountPasswordCommand(char* args)
     }
 
     return true;
+}
+
+bool ChatHandler::HandleJailInfoCommand(char* args)
+{
+    time_t localtime;
+    localtime = time(NULL);
+    Player *chr = m_session->GetPlayer();
+
+    if (chr->m_jail_release > 0)
+    {
+        uint32 min_left = (uint32)floor(float(chr->m_jail_release - localtime) / 60);
+
+        if (min_left <= 0)
+        {
+            chr->m_jail_release = 0;
+            chr->_SaveJail();
+            SendSysMessage(LANG_JAIL_NOTJAILED_INFO);
+            return true;
+        }
+        else
+        {
+            if (min_left >= 60) PSendSysMessage(LANG_JAIL_JAILED_H_INFO, (uint32)floor(float(chr->m_jail_release - localtime) / 60 / 60));
+            else PSendSysMessage(LANG_JAIL_JAILED_M_INFO, min_left);
+            PSendSysMessage(LANG_JAIL_REASON, chr->m_jail_gmchar.c_str(), chr->m_jail_reason.c_str());
+
+            return true;
+        }
+    }
+    else
+    {
+        SendSysMessage(LANG_JAIL_NOTJAILED_INFO);
+        return true;
+    }
+    return false;
 }
 
 bool ChatHandler::HandleAccountLockCommand(char* args)
