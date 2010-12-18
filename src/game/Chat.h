@@ -570,11 +570,20 @@ class ChatHandler
 		bool HandlePlayerbotCommand(char* args);
         bool HandleQuitCommand(char* args);
 		
+
         // Jail by WarHead
         bool HandleJailCommand(char* args);
         bool HandleJailInfoCommand(char* args);
         bool HandleUnJailCommand(char* args);
         bool HandleJailReloadCommand(char* args);
+
+        bool HandleMmapPathCommand(char* args);
+        bool HandleMmapLocCommand(char* args);
+        bool HandleMmapLoadedTilesCommand(char* args);
+        bool HandleMmapStatsCommand(char* args);
+        bool HandleMmap(char* args);
+        bool HandleMmapTestArea(char* args);
+
 
         bool HandleAHBotOptionsCommand(char* args);
 
