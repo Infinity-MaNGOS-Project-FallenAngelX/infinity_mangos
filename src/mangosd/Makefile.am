@@ -49,6 +49,7 @@ mangos_worldd_LDADD = \
 	../shared/libmangosshared.a \
 	../shared/vmap/libmangosvmaps.a \
 	../framework/libmangosframework.a \
+    ../../dep/recastnavigation/Detour/libdetour.a \
 	../../dep/src/g3dlite/libg3dlite.a \
 	../../dep/src/gsoap/libgsoap.a
 
