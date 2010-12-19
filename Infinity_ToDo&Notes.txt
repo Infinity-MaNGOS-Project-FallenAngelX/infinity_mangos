@@ -1,25 +1,41 @@
+==================================================
+TO_DO ++++++++++++++++++++++++
+==================================================
+
+1. one day get outdoor pvp implented
+
+2. fix custom tokenvendor and custom talent point stone item ( so far this is all i have tested in customs area )
+
+3. swp and oculus need the new code merged in to make both instances complete  use the best of ech ect ect
+
+4. DK starting area needs gone throught one more time to work out final bugs
+
+5. malgyos event needs fixed mainly just the vehicle stuff of it ... after a few gm test  first thing is fix the disc and control of the wyrm and we'll go from there
+
+6. testing on warhead jail , mm_maps , 
+
+7. needs to test each player class and race spell and talent & and start fixing or ect what doesnt work 
+
+8. Develop a 4.0.0 patch 
+
+===========================================================
+BUGS&ECT ++++++++++++++
+===========================================================
 1. DK Spell Mind Freeze isnt working
 
-2. one day get outdoor pvp implented
+2. fix bug with quest ambush at overlook   quest works fine   and credit is fine
 
-3. fix bug with quest ambush at overlook   quest works fine   and credit is fine
-
-4. fix custom tokenvendor and custom talent point stone item ( so far this is all i have tested in customs area )
-
-5. swp and oculus need the new code merged in to make both instances complete  use the best of ech ect ect
-
-6. DK starting area needs gone throught one more time to work out final bugs
-
-7. malgyos event needs fixed  mainly just the vehicle stuff of it ... after a few gm test  first thing is fix the disc and control of the wyrm and we'll go from there
-
-8. testing on warhead jail , mm_maps ,  
+3. 
 
 
-
-=====================================================================================================
-Tested============== verfied by ::fallenangelX(all listed,, all instance were gm  tested  and all quest were tested during playing)
-=====================================================================================================
-Eye of acherus___ 12_17_2010  =============  Quest and eye is working
+===========================================================
+Instances Tested ++++++++++++++
+===========================================================
 RSS  ____12_17_2010____===============  instance is working and bosses are working
 nexus/nexus_______12_17_2010===================  instance and events are working (needs to test heroic version  or place the commanders on the normal version)
+
+==============================
+Quests_Stuff +++++++++++++++++
+==============================
+Eye of acherus___ 12_17_2010  =============  Quest and eye is working
 Blood_elf Starting Area Quest (up to where you leave for ghostlands)_____12_17_2010 ===  i have 5 quest left to test  but so for only had to fix 2 quest
