@@ -4,6 +4,7 @@
 #include "Common.h"
 #include "../QuestDef.h"
 #include "../GameEventMgr.h"
+#include "../ObjectGuid.h"
 
 class WorldPacket;
 class WorldObject;
@@ -14,7 +15,7 @@ class Item;
 class PlayerbotClassAI;
 class PlayerbotMgr;
 
-#define BOTLOOT_DISTANCE 25.0f
+#define BOTLOOT_DISTANCE 75.0f
 
 enum RacialTraits
 {
@@ -38,6 +39,39 @@ enum RacialTraits
     STONEFORM_ALL                  = 20594,
     WAR_STOMP_ALL                  = 20549,
     WILL_OF_THE_FORSAKEN_ALL       = 7744
+};
+
+enum ProfessionSpells
+{
+    ALCHEMY_1                      = 2259,
+    BLACKSMITHING_1                = 2018,
+    COOKING_1                      = 2550,
+    ENCHANTING_1                   = 7411,
+    ENGINEERING_1                  = 4036,
+    FIRST_AID_1                    = 3273,
+    FISHING_1                      = 7620,
+    HERB_GATHERING_1               = 2366,
+    INSCRIPTION_1                  = 45357,
+    JEWELCRAFTING_1                = 25229,
+    MINING_1                       = 2575,
+    SKINNING_1                     = 8613,
+    TAILORING_1                    = 3908
+};
+
+enum NotableItems
+{
+    // Skeleton Keys
+    SILVER_SKELETON_KEY = 15869,
+    GOLDEN_SKELETON_KEY = 15870,
+    TRUESILVER_SKELETON_KEY = 15871,
+    ARCANITE_SKELETON_KEY = 15872,
+    TITANIUM_SKELETON_KEY = 43853,
+    COBALT_SKELETON_KEY = 43854,
+    // Lock Charges
+    SMALL_SEAFORIUM_CHARGE = 4367,
+    LARGE_SEAFORIUM_CHARGE = 4398,
+    POWERFUL_SEAFORIUM_CHARGE = 18594,
+    ELEMENTAL_SEAFORIUM_CHARGE = 23819
 };
 
 class MANGOS_DLL_SPEC PlayerbotAI
@@ -87,6 +121,16 @@ public:
         BOTSTATE_LOOTING            // looting mode, used just after combat
     };
 
+    enum CollectionFlags
+    {
+        COLLECT_FLAG_NOTHING    = 0x00,     // skip looting of anything
+        COLLECT_FLAG_COMBAT     = 0x01,     // loot after combat
+        COLLECT_FLAG_QUEST      = 0x02,     // quest and needed items
+        COLLECT_FLAG_PROFESSION = 0x04,     // items related to skills
+        COLLECT_FLAG_LOOT       = 0x08,     // all loot on corpses
+        COLLECT_FLAG_SKIN       = 0x10,     // skin creatures if available
+    };
+
     enum MovementOrderType
     {
         MOVEMENT_NONE               = 0x00,
@@ -95,7 +139,8 @@ public:
     };
 
     typedef std::map<uint32, uint32> BotNeedItem;
-    typedef std::list<uint64> BotLootCreature;
+    typedef std::list<uint64> BotLootList;
+    typedef std::list<uint32> BotSpellList;
 
     // attacker query used in PlayerbotAI::FindAttacker()
     enum ATTACKERINFOTYPE
@@ -151,23 +196,29 @@ public:
     uint32 getPetSpellId(const char* args) const;
     // Initialize spell using rank 1 spell id
     uint32 initSpell(uint32 spellId);
+    uint32 initPetSpell(uint32 spellIconId);
 
     // extracts item ids from links
     void extractItemIds(const std::string& text, std::list<uint32>& itemIds) const;
 
     // extract spellid from links
-    bool extractSpellId(const std::string& text, uint32 &spellId) const;
+    void extractSpellId(const std::string& text, uint32 &spellId) const;
+
+    // extract spellids from links to list
+    void extractSpellIdList(const std::string& text, BotSpellList& m_spellsToLearn) const;
 
     // extracts currency from a string as #g#s#c and returns the total in copper
     uint32 extractMoney(const std::string& text) const;
 
     // extracts gameobject info from link
-    bool extractGOinfo(const std::string& text, uint32 &guid,  uint32 &entry, int &mapid, float &x, float &y, float &z) const;
+    void extractGOinfo(const std::string& text, BotLootList& m_lootTargets) const;
 
     // finds items in bots equipment and adds them to foundItemList, removes found items from itemIdSearchList
     void findItemsInEquip(std::list<uint32>& itemIdSearchList, std::list<Item*>& foundItemList) const;
     // finds items in bots inventory and adds them to foundItemList, removes found items from itemIdSearchList
     void findItemsInInv(std::list<uint32>& itemIdSearchList, std::list<Item*>& foundItemList) const;
+
+    void MakeSpellLink(const SpellEntry *sInfo, std::ostringstream &out, Player* player = NULL);
 
     // currently bots only obey commands from the master
     bool canObeyCommandFrom(const Player& player) const;
@@ -182,7 +233,7 @@ public:
     bool CanReceiveSpecificSpell(uint8 spec, Unit* target) const;
 
     bool PickPocket(Unit* pTarget);
-    bool HasPick();
+    bool HasTool(uint32 TC);
     bool HasSpellReagents(uint32 spellId);
 
     uint8 GetHealthPercent(const Unit& target) const;
@@ -204,6 +255,8 @@ public:
     Item* FindPoison() const;
     Item* FindMount(uint32 matchingRidingSkill) const;
     Item* FindItem(uint32 ItemId);
+    Item* FindKeyForLockValue(uint32 reqSkillValue);
+    Item* FindBombForLockValue(uint32 reqSkillValue);
     Item* FindConsumable(uint32 displayId) const;
 
     // ******* Actions ****************************************
@@ -217,7 +270,12 @@ public:
     bool CastPetSpell(uint32 spellId, Unit* target = NULL);
     bool Buff(uint32 spellId, Unit* target, void (*beforeCast)(Player *) = NULL);
     bool SelfBuff(uint32 spellId);
-    void UseItem(Item& item, uint8 targetSlot = 255);
+
+    void UseItem(Item *item, uint32 targetFlag, ObjectGuid targetGUID);
+    void UseItem(Item *item, uint8 targetInventorySlot);
+    void UseItem(Item *item, Unit *target);
+    void UseItem(Item *item);
+
     void EquipItem(Item& item);
     //void Stay();
     //bool Follow(Player& player);
@@ -228,7 +286,7 @@ public:
     Unit *GetCurrentTarget() { return m_targetCombat; };
     void DoNextCombatManeuver();
     void DoCombatMovement();
-    void SetIgnoreUpdateTime(uint8 t) { m_ignoreAIUpdatesUntilTime = time(0) + t; };
+    void SetIgnoreUpdateTime(uint8 t = 0) { m_ignoreAIUpdatesUntilTime = time(0) + t; };
 
     Player *GetPlayerBot() const { return m_bot; }
     Player *GetPlayer() const { return m_bot; }
@@ -241,6 +299,13 @@ public:
     void SendOrders(Player& player);
     bool FollowCheckTeleport(WorldObject &obj);
     void DoLoot();
+
+    bool HasCollectFlag(uint8 flag) { return m_collectionFlags & flag; }
+    void SetCollectFlag(uint8 flag)
+    {
+        if(HasCollectFlag(flag)) m_collectionFlags &= ~flag;
+        else m_collectionFlags |= flag;
+    }
 
     uint32 EstRepairAll();
     uint32 EstRepair(uint16 pos);
@@ -277,6 +342,9 @@ private:
     bool TradeItem(const Item& item, int8 slot = -1);
     bool TradeCopper(uint32 copper);
 
+    // Helper routines not needed by class AIs.
+    void UpdateAttackersForTarget(Unit *victim);
+
     // it is safe to keep these back reference pointers because m_bot
     // owns the "this" object and m_master owns m_bot. The owner always cleans up.
     PlayerbotMgr* const m_mgr;
@@ -300,8 +368,12 @@ private:
     BotNeedItem m_needItemList;
 
     // list of creatures we recently attacked and want to loot
-    BotLootCreature m_lootCreature;      // list of creatures
-    uint64 m_lootCurrent;                // current remains of interest
+    BotLootList m_lootTargets;          // list of targets
+    BotSpellList m_spellsToLearn;       // list of spells
+    ObjectGuid m_lootCurrent;           // current remains of interest
+    ObjectGuid m_lootPrev;              // previous loot
+
+    uint8 m_collectionFlags;            // what the bot should look for to loot
 
     time_t m_TimeDoneEating;
     time_t m_TimeDoneDrinking;
@@ -325,6 +397,11 @@ private:
     Unit *m_followTarget;       // whom to follow in non combat situation?
 
     std::map<uint32, float> m_spellRangeMap;
+
+    uint32  FISHING,
+            HERB_GATHERING,
+            MINING,
+            SKINNING;
 };
 
 #endif

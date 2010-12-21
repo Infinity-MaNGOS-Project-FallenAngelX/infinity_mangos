@@ -2,7 +2,7 @@
 #include "../Player.h"
 #include "PlayerbotAI.h"
 #include "PlayerbotMgr.h"
-#include "../WorldSession.h"
+#include "WorldPacket.h"
 #include "../Chat.h"
 #include "../ObjectMgr.h"
 #include "../GossipDef.h"
@@ -577,6 +577,19 @@ void Creature::LoadBotMenu(Player *pPlayer)
     }
     while (result->NextRow());
     delete result;
+}
+
+void Player::skill(std::list<uint32>& m_spellsToLearn)
+{
+    for( SkillStatusMap::const_iterator itr = mSkillStatus.begin(); itr != mSkillStatus.end();++itr)
+    {
+        if(itr->second.uState == SKILL_DELETED)
+            continue;
+
+        uint32 pskill = itr->first;
+
+        m_spellsToLearn.push_back(pskill);
+    }
 }
 
 void Player::chompAndTrim(std::string& str)
