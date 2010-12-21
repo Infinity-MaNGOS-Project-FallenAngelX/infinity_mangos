@@ -2116,6 +2116,19 @@ void Pet::ApplyStatScalingBonus(Stats stat, bool apply)
     m_baseBonusData->statScale[stat] = newStat;
 
     int32 basePoints = int32(m_baseBonusData->statScale[stat] * (CalculateScalingData()->statScale[stat] / 100.0f));
+    
+    if(stat == STAT_STAMINA)
+    {
+        PetSpellMap::const_iterator itr = m_spells.find(62758);    //Wild Hunt rank 1
+        if (itr == m_spells.end())
+            itr = m_spells.find(62762);                            //Wild Hunt rank 2
+
+        if (itr != m_spells.end())                                 // If pet has Wild Hunt
+        {
+            SpellEntry const* sProto = sSpellStore.LookupEntry(itr->first); // Then get the SpellProto and add the dummy effect value
+            basePoints += basePoints * sProto->CalculateSimpleValue(EFFECT_INDEX_0) / 100;
+        }
+    }
 
     bool needRecalculateStat = false;
 
@@ -2278,7 +2291,19 @@ void Pet::ApplyAttackPowerScalingBonus(bool apply)
             break;
         }
         case HUNTER_PET:
+        {
             newAPBonus = owner->GetTotalAttackPowerValue(RANGED_ATTACK);
+            
+            PetSpellMap::const_iterator itr = m_spells.find(62758);    //Wild Hunt rank 1
+            if (itr == m_spells.end())
+                itr = m_spells.find(62762);                            //Wild Hunt rank 2
+
+            if (itr != m_spells.end())                                 // If pet has Wild Hunt
+            {
+                SpellEntry const* sProto = sSpellStore.LookupEntry(itr->first); // Then get the SpellProto and add the dummy effect value
+                newAPBonus += newAPBonus * sProto->CalculateSimpleValue(EFFECT_INDEX_1) / 100;
+            }
+        }
             break;
         default:
             newAPBonus = 0;
